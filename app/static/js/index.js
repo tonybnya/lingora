@@ -1,4 +1,5 @@
 (function() {
+  document.getElementById('footer-year').textContent = new Date().getFullYear();
   const canvas = document.getElementById('bg-canvas');
   if (!window.THREE) { console.warn('Three.js not loaded.'); return; }
 
