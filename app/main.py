@@ -14,6 +14,15 @@ app.mount('/static', StaticFiles(directory='static'), name='static')
 templates = Jinja2Templates(directory='templates')
 
 
+@app.get('/', response_class=HTMLResponse)
+async def index(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name='index.html',
+        context={'request': request}
+    )
+
+
 @app.get('/health')
 def health():
     return {
@@ -23,10 +32,10 @@ def health():
     }
 
 
-@app.get('/index', response_class=HTMLResponse)
+@app.get('/translator', response_class=HTMLResponse)
 async def index(request: Request):
     return templates.TemplateResponse(
         request=request,
-        name='index.html',
+        name='translator.html',
         context={'request': request}
     )
