@@ -15,8 +15,9 @@ app.mount('/static', StaticFiles(directory='static'), name='static')
 # define the templates folder
 templates = Jinja2Templates(directory='templates')
 
+
 # override the HTTPException handler for 404 template
-@app.exception_handler(StarletteHTTPException)  # <-- Use StarletteHTTPException
+@app.exception_handler(StarletteHTTPException)
 async def custom_404_handler(request: Request, exc: StarletteHTTPException):
     # render the 404 template for 404 errors
     # pass other errors to default handlers
