@@ -1,12 +1,24 @@
 from datetime import datetime
+from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
+
+# define a FastAPI app
 app = FastAPI()
 
-@app.get("/health")
+# define the templates folder
+templates = Jinja2Templates(directory='templates')
+
+
+@app.get('/health')
 def health():
     return {
-        "status": "ok",
-        "service": "Lingora API",
-        "timestamp": datetime.now()
-    }, 200
+        'status': 'ok',
+        'service': 'Lingora API',
+        'timestamp': datetime.now()
+    }
+
+
+@app.get('/index', response_class=HTMLResponse)
+def index(request: Request):
+    return templates.TemplateResponse('index.html', {'request': request})
