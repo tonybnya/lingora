@@ -23,43 +23,43 @@
 
     <div class="container">
 
-        <!-- Main Translation Interface -->
-        <div class="glass-panel">
-            <span class="section-label">Translation Service</span>
-            <h1 class="section-title"><span class="accent">Translate</span> your Text</h1>
+      <!-- Main Translation Interface -->
+      <div class="glass-panel">
+          <span class="section-label">Translation Service</span>
+          <h1 class="section-title"><span class="accent">Translate</span> your Text</h1>
 
-            <form id="translator-form">
-                <!-- Text Input -->
-                <div class="form-group">
-                    <label for="input-text" class="form-label">Text to Translate</label>
-                    <textarea id="input-text" class="form-textarea" placeholder="Enter your text here..."></textarea>
-                </div>
+          <form id="translator-form">
+              <!-- Text Input -->
+              <div class="form-group">
+                  <label for="input-text" class="form-label">Text to Translate</label>
+                  <textarea id="input-text" class="form-textarea" placeholder="Enter your text here..."></textarea>
+              </div>
 
-                <!-- Languages Input -->
-                <div class="form-group">
-                    <label for="languages" class="form-label">Languages (comma-separated)</label>
-                    <input type="text" id="languages" class="form-input" placeholder="e.g. French, Spanish, Japanese">
-                </div>
+              <!-- Languages Input -->
+              <div class="form-group">
+                  <label for="languages" class="form-label">Languages (comma-separated)</label>
+                  <input type="text" id="languages" class="form-input" placeholder="e.g. French, Spanish, Japanese">
+              </div>
 
-                <!-- Translate Button -->
-                <button type="submit" class="btn btn-primary">Translate</button>
-            </form>
-        </div>
+              <!-- Translate Button -->
+              <button type="submit" class="btn btn-primary" onclick="submitTranslation()">Translate</button>
+          </form>
+      </div>
 
-        <!-- Results Section -->
-        <div id="results" class="glass-panel results-area">
-            <span class="section-label">Results</span>
-            <h2 class="section-title">Your <span class="accent">Translations</span></h2>
-            <!-- Results will be dynamically inserted here -->
-            <div class="result-card">
-                <div class="result-header">
-                    <span class="result-lang">FR — French</span>
-                </div>
-                <div class="result-text">
-                    Voici un exemple de traduction automatique en français pour démonstration.
-                </div>
-            </div>
-        </div>
+      <!-- Results Section -->
+      <div id="results" class="glass-panel results-area">
+          <span class="section-label">Results</span>
+          <h2 class="section-title">Your <span class="accent">Translations</span></h2>
+          <!-- Results will be dynamically inserted here -->
+          <div class="result-card">
+              <div class="result-header">
+                  <span class="result-lang">FR — French</span>
+              </div>
+              <div class="result-text">
+                  Voici un exemple de traduction automatique en français pour démonstration.
+              </div>
+          </div>
+      </div>
 
         <!-- Check Translation Status -->
         <div class="glass-panel">
@@ -73,13 +73,26 @@
                         <input type="text" id="translation-id" class="form-input" placeholder="e.g. 12345">
                     </div>
                     <div style="display: flex; gap: 12px;">
-                        <button type="submit" class="btn btn-outline">Check Status</button>
-                        <button type="button" class="btn btn-outline">Check Content</button>
+                        <button type="submit" class="btn btn-outline" onclick="checkTranslationStatus()">Check Status</button>
+                        <button type="button" class="btn btn-outline" onclick="checkTranslationContent()">Check Content</button>
                     </div>
                 </div>
             </form>
-        </div>
 
+            <div id="status-container" class="check-result-container">
+                <div class="result-header-content">
+                    <span class="result-lang">Status</span>
+                </div>
+                <pre id="statusResult" class="check-result-pre"></pre>
+            </div>
+
+            <div id="content-container" class="check-result-container">
+                <div class="result-header-content">
+                    <span class="result-lang">Content</span>
+                </div>
+                <pre id="contentResult" class="check-result-pre"></pre>
+            </div>
+        </div>
     </div>
 
     <div class="translator-footer">
@@ -87,5 +100,6 @@
     </div>
 
     <script src="{{ url_for('static', path='/js/translator.js') }}"></script>
+    <script src="{{ url_for('static', path='/js/translatorDotLoader.js') }}"></script>
 </body>
 </html>
