@@ -119,7 +119,7 @@ def test_translate_uses_openai_v1_api(client, db_session, monkeypatch):
     fake_constructor.assert_called_once()
     fake_client.chat.completions.create.assert_awaited_once()
     call_kwargs = fake_client.chat.completions.create.await_args.kwargs
-    assert call_kwargs["model"] == "gpt-4"
+    assert call_kwargs["model"] == "gpt-4o-mini"
     assert {"role": "user", "content": "morning"} in call_kwargs["messages"]
 
     # Result was persisted

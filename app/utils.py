@@ -55,7 +55,7 @@ async def translate_text(text: str, language: str) -> str:
 async def _translate_openai(text: str, language: str) -> str:
     client = _get_openai_client()
     response = await client.chat.completions.create(
-        model="gpt-4",
+        model="gpt-4o-mini",
         messages=[
             {
                 "role": "system",
