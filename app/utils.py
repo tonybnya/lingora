@@ -58,7 +58,7 @@ async def translate_text(text: str, language: str) -> str:
 async def _translate_openai(text: str, language: str) -> str:
     client = _get_openai_client()
     response = await client.chat.completions.create(
-        # model="gpt-5.5",
+        # OpenAI's current public lineup on the API is roughly: gpt-4o, gpt-4o-mini, gpt-4.1, gpt-4.1-mini, gpt-4.1-nano, o3, o3-mini, o4-mini. Real gpt-5/gpt-5.x haven't shipped on the API as of mid-2026.
         model="gpt-5.3",
         messages=[
             {
