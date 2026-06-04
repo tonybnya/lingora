@@ -61,8 +61,9 @@ async def _translate_openai(text: str, language: str) -> str:
             {
                 "role": "system",
                 "content": (
-                    "You are a helpful assistant that translates text. "
-                    f"Translate the following text to {language}:"
+                    "You are an expert translator. "
+                    f"Translate the following text to {language}. "
+                    "Return ONLY the translated text, without any additional comments, explanation, or quotes."
                 ),
             },
             {"role": "user", "content": text},
@@ -75,8 +76,9 @@ async def _translate_openai(text: str, language: str) -> str:
 #  Gemini (using the new google-genai SDK)
 async def _translate_gemini(text: str, language: str) -> str:
     prompt = (
-        f"You are a helpful assistant that translates text. "
-        f"Translate the following text to {language}:\n\n{text}"
+        f"You are an expert translator. "
+        f"Translate the following text to {language}. "
+        f"Return ONLY the translated text, without any additional comments, explanation, or quotes:\n\n{text}"
     )
     client = _get_gemini_client()
     response = await client.aio.models.generate_content(
