@@ -5,27 +5,27 @@ Author      : @tonybnya
 """
 import os
 import logging
+from datetime import datetime
 from typing import List
 
 # Third-party
 import openai as openai_client
-import google.generativeai as genai
+from google import genai
 from sqlalchemy.orm import Session
 
 # Local
-from .models import TranslationRequest, TranslationResult
+from models import TranslationRequest, TranslationResult
 
 logger = logging.getLogger(__name__)
 
-# ---------------------------------------------------------------------------
 #  Provider configuration
-# ---------------------------------------------------------------------------
-_PROVIDER = os.getenv("TRANSLATION_PROVIDER", "openai").lower()  # "openai" or "gemini"
+_PROVIDER = os.getenv("TRANSLATION_PROVIDER", "gemini").lower()  # "openai" or "gemini"
 
 if _PROVIDER == "openai":
     openai_client.api_key = os.getenv("OPENAI_API_KEY")
 elif _PROVIDER == "gemini":
-    genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+    # The new google-genai SDK uses a single Client instance.
+    _gemini_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 else:
     raise ValueError(f"Unsupported TRANSLATION_PROVIDER: {_PROVIDER}")
 
@@ -37,9 +37,7 @@ async def translate_text(text: str, language: str) -> str:
     return await _translate_gemini(text, language)
 
 
-# ---------------------------------------------------------------------------
 #  OpenAI
-# ---------------------------------------------------------------------------
 async def _translate_openai(text: str, language: str) -> str:
     response = await openai_client.ChatCompletion.acreate(
         model="gpt-4",
@@ -55,22 +53,20 @@ async def _translate_openai(text: str, language: str) -> str:
     return response["choices"][0]["message"]["content"].strip()
 
 
-# ---------------------------------------------------------------------------
-#  Gemini
-# ---------------------------------------------------------------------------
+#  Gemini (using the new google-genai SDK)
 async def _translate_gemini(text: str, language: str) -> str:
-    model = genai.GenerativeModel("gemini-pro")
     prompt = (
         f"You are a helpful assistant that translates text. "
         f"Translate the following text to {language}:\n\n{text}"
     )
-    response = await model.generate_content_async(prompt)
+    response = await _gemini_client.aio.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=prompt,
+    )
     return response.text.strip()
 
 
-# ---------------------------------------------------------------------------
 #  Orchestration
-# ---------------------------------------------------------------------------
 async def process_translations(
     request_id: int,
     text: str,
