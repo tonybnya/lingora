@@ -6,251 +6,31 @@
     <title>404 — Lost in Translation | Lingora</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', path='/images/favicon.ico') }}">
-    <style>
-        :root {
-            --primary: #E85D22;
-            --bg: #0A0A0A;
-            --surface: #111111;
-            --text-primary: #FFFFFF;
-            --text-secondary: rgba(255, 255, 255, 0.5);
-            --border: rgba(255, 255, 255, 0.08);
-            --glass-bg: rgba(255, 255, 255, 0.03);
-            --font-display: 'Playfair Display', serif;
-            --font-mono: 'Space Mono', monospace;
-            --font-body: 'Inter', sans-serif;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: var(--font-body);
-            background-color: var(--bg);
-            color: var(--text-primary);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            -webkit-font-smoothing: antialiased;
-        }
-
-        /* Grid overlay */
-        .grid-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image:
-                linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-            background-size: 60px 60px;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        /* Main container */
-        .error-container {
-            text-align: center;
-            position: relative;
-            z-index: 10;
-            padding: 48px;
-            max-width: 600px;
-            width: 100%;
-        }
-
-        /* Error code */
-        .error-code {
-            font-family: var(--font-display);
-            font-size: 180px;
-            line-height: 1;
-            font-weight: 400;
-            color: rgba(255, 255, 255, 0.03);
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: -1;
-            pointer-events: none;
-            user-select: none;
-        }
-
-        /* Content card */
-        .error-card {
-            background: var(--glass-bg);
-            border: 1px solid var(--border);
-            border-radius: 2px;
-            padding: 64px 48px;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            position: relative;
-            z-index: 1;
-        }
-
-        .error-card::before {
-            content: "";
-            position: absolute;
-            inset: -1px;
-            border-radius: 3px;
-            padding: 1px;
-            background: linear-gradient(
-                to right,
-                rgba(255, 255, 255, 0.2),
-                rgba(255, 255, 255, 0.05)
-            );
-            -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-            -webkit-mask-composite: xor;
-            mask-composite: exclude;
-            pointer-events: none;
-        }
-
-        /* Label */
-        .label {
-            font-family: var(--font-mono);
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--primary);
-            margin-bottom: 24px;
-            display: block;
-        }
-
-        /* Title */
-        .error-title {
-            font-family: var(--font-display);
-            font-size: 48px;
-            font-weight: 400;
-            line-height: 1.1;
-            margin-bottom: 16px;
-        }
-
-        .error-title .accent {
-            color: var(--primary);
-            font-style: italic;
-        }
-
-        /* Description */
-        .error-desc {
-            font-family: var(--font-body);
-            font-size: 16px;
-            color: var(--text-secondary);
-            line-height: 1.7;
-            margin-bottom: 40px;
-        }
-
-        /* Buttons */
-        .error-actions {
-            display: flex;
-            gap: 16px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 14px 28px;
-            font-family: var(--font-mono);
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            text-decoration: none;
-            border-radius: 2px;
-            transition: all 0.15s ease;
-            cursor: pointer;
-            border: none;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 32px rgba(232, 93, 34, 0.4);
-        }
-
-        .btn-outline {
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: white;
-            background: transparent;
-        }
-
-        .btn-outline:hover {
-            background: rgba(255, 255, 255, 0.05);
-            border-color: var(--primary);
-        }
-
-        .btn-icon {
-            transition: transform 0.15s ease;
-        }
-
-        .btn:hover .btn-icon {
-            transform: translateX(4px);
-        }
-
-        /* Decorative elements */
-        .glitch-line {
-            display: block;
-            height: 1px;
-            width: 80px;
-            background: var(--primary);
-            margin: 0 auto 32px auto;
-            opacity: 0.5;
-        }
-
-        /* Responsive */
-        @media (max-width: 640px) {
-            .error-code {
-                font-size: 120px;
-            }
-            .error-title {
-                font-size: 32px;
-            }
-            .error-card {
-                padding: 40px 24px;
-            }
-            .error-actions {
-                flex-direction: column;
-            }
-            .btn {
-                width: 100%;
-                justify-content: center;
-            }
-        }
-    </style>
+    <link href="{{ url_for('static', path='/css/404.css') }}" rel="stylesheet">
 </head>
 <body>
-    <div class="grid-overlay"></div>
+  <div class="grid-overlay"></div>
 
-    <div class="error-container">
-        <div class="error-code">404</div>
-        <div class="error-card">
-            <span class="label">Error</span>
-            <h1 class="error-title">Lost in<br><span class="accent">Translation</span></h1>
-            <div class="glitch-line"></div>
-            <p class="error-desc">
-                The page you're looking for doesn't exist. It might have been moved, deleted, or perhaps it was never here to begin with.
-            </p>
-            <div class="error-actions">
-                <a href="/" class="btn btn-primary">
-                    <span>Return Home</span>
-                    <span class="btn-icon">←</span>
-                </a>
-                <a href="/translator" class="btn btn-outline">
-                    <span>Try Translator</span>
-                    <span class="btn-icon">→</span>
-                </a>
-            </div>
-        </div>
+  <div class="error-container">
+    <div class="error-code">404</div>
+    <div class="error-card">
+      <span class="label">Error</span>
+      <h1 class="error-title">Lost in<br><span class="accent">Translation</span></h1>
+      <div class="glitch-line"></div>
+      <p class="error-desc">
+          The page you're looking for doesn't exist. It might have been moved, deleted, or perhaps it was never here to begin with.
+      </p>
+      <div class="error-actions">
+        <a href="/" class="btn btn-primary">
+          <span>Return Home</span>
+          <span class="btn-icon">←</span>
+        </a>
+        <a href="/translator" class="btn btn-outline">
+          <span>Try Translator</span>
+          <span class="btn-icon">→</span>
+        </a>
+      </div>
     </div>
+  </div>
 </body>
 </html>
