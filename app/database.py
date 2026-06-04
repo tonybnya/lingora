@@ -7,7 +7,7 @@ Author      : @tonybnya
 import os
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy.orm import sessionmaker
 
 # Determine database URL based on environment
 # In development, use SQLite. In production, use PostgreSQL.
