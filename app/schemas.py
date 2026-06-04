@@ -17,6 +17,6 @@ class TranslationRequestSchema(BaseModel):
         json_schema_extra = {
             "example": {
                 "text": "Hello, world!",
-                "languages": "english, french, german, russian, spanish"
+                "languages": "french, german, russian, spanish"
             }
         }
