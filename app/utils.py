@@ -10,7 +10,7 @@ from datetime import datetime
 from typing import List
 
 # Third-party
-import openai as openai_client
+from openai import AsyncOpenAI
 from google import genai
 
 # Local
@@ -19,39 +19,56 @@ from models import TranslationRequest, TranslationResult
 
 logger = logging.getLogger(__name__)
 
-#  Provider configuration
-_PROVIDER = os.getenv("TRANSLATION_PROVIDER", "gemini").lower()  # "openai" or "gemini"
+# Lazy provider clients — read env at call time so tests can switch
+# providers without reloading the module.
+_openai_client: AsyncOpenAI | None = None
+_gemini_client: genai.Client | None = None
 
-if _PROVIDER == "openai":
-    openai_client.api_key = os.getenv("OPENAI_API_KEY")
-elif _PROVIDER == "gemini":
-    # The new google-genai SDK uses a single Client instance.
-    _gemini_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-else:
-    raise ValueError(f"Unsupported TRANSLATION_PROVIDER: {_PROVIDER}")
+
+def _get_provider() -> str:
+    """Read the active provider from the environment on every call."""
+    return os.getenv("TRANSLATION_PROVIDER", "gemini").lower()
+
+
+def _get_openai_client() -> AsyncOpenAI:
+    global _openai_client
+    if _openai_client is None:
+        _openai_client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    return _openai_client
+
+
+def _get_gemini_client() -> genai.Client:
+    global _gemini_client
+    if _gemini_client is None:
+        _gemini_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+    return _gemini_client
 
 
 async def translate_text(text: str, language: str) -> str:
     """Translate *text* into *language* using the configured LLM provider."""
-    if _PROVIDER == "openai":
+    if _get_provider() == "openai":
         return await _translate_openai(text, language)
     return await _translate_gemini(text, language)
 
 
-#  OpenAI
+#  OpenAI (v1.x SDK: AsyncOpenAI + client.chat.completions.create)
 async def _translate_openai(text: str, language: str) -> str:
-    response = await openai_client.ChatCompletion.acreate(
+    client = _get_openai_client()
+    response = await client.chat.completions.create(
         model="gpt-4",
         messages=[
             {
                 "role": "system",
-                "content": f"You are a helpful assistant that translates text. "
-                f"Translate the following text to {language}:",
+                "content": (
+                    "You are a helpful assistant that translates text. "
+                    f"Translate the following text to {language}:"
+                ),
             },
             {"role": "user", "content": text},
         ],
     )
-    return response["choices"][0]["message"]["content"].strip()
+    content = response.choices[0].message.content
+    return (content or "").strip()
 
 
 #  Gemini (using the new google-genai SDK)
@@ -60,7 +77,8 @@ async def _translate_gemini(text: str, language: str) -> str:
         f"You are a helpful assistant that translates text. "
         f"Translate the following text to {language}:\n\n{text}"
     )
-    response = await _gemini_client.aio.models.generate_content(
+    client = _get_gemini_client()
+    response = await client.aio.models.generate_content(
         model="gemini-2.0-flash",
         contents=prompt,
     )
