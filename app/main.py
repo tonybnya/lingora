@@ -3,8 +3,10 @@ Script Name : main.py
 Description : Main FastAPI application setup and route definitions.
 Author      : @tonybnya
 """
+
 import logging
 from datetime import datetime
+from pathlib import Path
 from dotenv import load_dotenv
 from fastapi import FastAPI, BackgroundTasks, HTTPException, Depends, Request
 from fastapi.responses import HTMLResponse
@@ -16,10 +18,11 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 load_dotenv()
 
-# Local imports
-from database import engine, get_db
-from schemas import TranslationRequestSchema
-import models
+# Local imports (must come after load_dotenv so engine construction picks up env)
+from database import engine, get_db  # noqa: E402
+from schemas import TranslationRequestSchema  # noqa: E402
+import models  # noqa: E402
+from utils import process_translations  # noqa: E402
 
 # Create database tables
 models.Base.metadata.create_all(bind=engine)
@@ -39,11 +42,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Mount static files
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# Mount static files (use absolute path so it works regardless of CWD)
+_STATIC_DIR = Path(__file__).parent / "static"
+app.mount("/static", StaticFiles(directory=str(_STATIC_DIR)), name="static")
 
 # Templates configuration
 templates = Jinja2Templates(directory="templates")
+
 
 # Exception Handlers
 @app.exception_handler(StarletteHTTPException)
@@ -51,9 +56,7 @@ async def custom_404_handler(request: Request, exc: StarletteHTTPException):
     """Custom handler for 404 errors to render a template."""
     if exc.status_code == 404:
         return templates.TemplateResponse(
-            request=request,
-            name="404.html",
-            status_code=404
+            request=request, name="404.html", status_code=404
         )
     return exc
 
@@ -66,7 +69,7 @@ async def index(request: Request):
         request=request,
         name="index.html",
         context={"request": request},
-        status_code=200
+        status_code=200,
     )
 
 
@@ -77,7 +80,7 @@ async def translator(request: Request):
         request=request,
         name="translator.html",
         context={"request": request},
-        status_code=200
+        status_code=200,
     )
 
 
@@ -88,7 +91,7 @@ def health() -> dict[str, str]:
     return {
         "status": "ok",
         "service": "Lingora API",
-        "timestamp": datetime.now().isoformat()
+        "timestamp": datetime.now().isoformat(),
     }
 
 
@@ -96,7 +99,7 @@ def health() -> dict[str, str]:
 async def translate(
     request_data: TranslationRequestSchema,
     background_tasks: BackgroundTasks,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
 ):
     """Receives a translation request and queues it for processing."""
     logging.info(f"Received translation request: {request_data}")
@@ -109,31 +112,47 @@ async def translate(
     db.commit()
     db.refresh(db_request)
 
-    # In a real scenario, you would pass data to a background task:
-    # background_tasks.add_task(process_translations, db_request.id, request_data.text, request_data.languages)
+    # Enqueue the heavy LLM work. process_translations owns its own DB
+    # session because BackgroundTasks run after the request response
+    # is sent (and the request-scoped session has already been closed).
+    background_tasks.add_task(
+        process_translations,
+        db_request.id,
+        request_data.text,
+        [lang.strip() for lang in request_data.languages.split(",") if lang.strip()],
+    )
 
     return {
         "id": db_request.id,
         "status": db_request.status,
-        "message": "Translation request accepted and is being processed."
+        "message": "Translation request accepted and is being processed.",
     }
 
 
 @app.get("/translate/{request_id}")
 async def get_translation_status(request_id: int, db: Session = Depends(get_db)):
     """Retrieves the status and results of a translation request."""
-    request_obj = db.query(models.TranslationRequest).filter(models.TranslationRequest.id == request_id).first()
+    request_obj = (
+        db.query(models.TranslationRequest)
+        .filter(models.TranslationRequest.id == request_id)
+        .first()
+    )
     if not request_obj:
         raise HTTPException(status_code=404, detail="Request not found")
 
-    if request_obj.status == "in progress":
+    if request_obj.status in {"in progress", "failed"}:
         return {"id": request_id, "status": request_obj.status}
 
-    translations = db.query(models.TranslationResult).filter(models.TranslationResult.request_id == request_id).all()
+    translations = (
+        db.query(models.TranslationResult)
+        .filter(models.TranslationResult.request_id == request_id)
+        .all()
+    )
     return {
         "id": request_id,
         "status": request_obj.status,
         "translations": [
-            {"language": t.language, "translated_text": t.translated_text} for t in translations
-        ]
+            {"language": t.language, "translated_text": t.translated_text}
+            for t in translations
+        ],
     }

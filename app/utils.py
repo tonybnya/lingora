@@ -3,6 +3,7 @@ Script Name : utils.py
 Description : Utility functions for translation and database operations.
 Author      : @tonybnya
 """
+
 import os
 import logging
 from datetime import datetime
@@ -11,9 +12,9 @@ from typing import List
 # Third-party
 import openai as openai_client
 from google import genai
-from sqlalchemy.orm import Session
 
 # Local
+from database import SessionLocal
 from models import TranslationRequest, TranslationResult
 
 logger = logging.getLogger(__name__)
@@ -45,7 +46,7 @@ async def _translate_openai(text: str, language: str) -> str:
             {
                 "role": "system",
                 "content": f"You are a helpful assistant that translates text. "
-                           f"Translate the following text to {language}:",
+                f"Translate the following text to {language}:",
             },
             {"role": "user", "content": text},
         ],
@@ -71,9 +72,14 @@ async def process_translations(
     request_id: int,
     text: str,
     languages: List[str],
-    db: Session,
 ) -> None:
-    """Translate *text* into each *language* and persist results."""
+    """Translate *text* into each *language* and persist results.
+
+    Owns its own DB session. Background tasks run after the FastAPI request
+    response is sent, so we cannot rely on the request-scoped session from
+    ``Depends(get_db)`` — it would be closed by the time we got here.
+    """
+    db = SessionLocal()
     try:
         for language in languages:
             translated_text = await translate_text(text, language)
@@ -99,4 +105,22 @@ async def process_translations(
     except Exception as exc:
         db.rollback()
         logger.error("Translation processing failed: %s", exc, exc_info=True)
-        raise
+        # Flip the request to "failed" so the frontend stops polling
+        # instead of getting stuck at 75% forever. The response has
+        # already been sent by the time we get here, so re-raising would
+        # only crash the background task runner (and surprise the caller
+        # in tests); logging is the right signal in production.
+        try:
+            request = (
+                db.query(TranslationRequest)
+                .filter(TranslationRequest.id == request_id)
+                .first()
+            )
+            if request:
+                request.status = "failed"
+                request.updated_at = datetime.utcnow()
+                db.commit()
+        except Exception:
+            db.rollback()
+    finally:
+        db.close()
