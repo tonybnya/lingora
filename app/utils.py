@@ -14,7 +14,10 @@ from openai import AsyncOpenAI
 from google import genai
 
 # Local
+# pyrefly: ignore [missing-import]
 from database import SessionLocal
+
+# pyrefly: ignore [missing-import]
 from models import TranslationRequest, TranslationResult
 
 logger = logging.getLogger(__name__)
