@@ -22,8 +22,8 @@
       <a href="#" class="nav-logo">Lingora</a>
       <ul class="nav-links">
         <li><a href="#features">Features</a></li>
-        <li><a href="#">API</a></li>
-        <li><a href="#">Docs</a></li>
+        <!-- <li><a href="#">API</a></li> -->
+        <!-- <li><a href="#">Docs</a></li> -->
       </ul>
     </nav>
 
@@ -73,7 +73,7 @@
     <!-- Features / Impact Marquee -->
     <div class="tech-marquee">
       <div class="marquee-track">
-        <span>100+ Languages</span>
+        <span>50+ Languages</span>
         <div class="marquee-divider"></div>
         <span>Real-Time Translation</span>
         <div class="marquee-divider"></div>
@@ -84,7 +84,7 @@
         <span>Translation History</span>
         <div class="marquee-divider"></div>
         <!-- Repeat for smooth loop -->
-        <span>100+ Languages</span>
+        <span>50+ Languages</span>
         <div class="marquee-divider"></div>
         <span>Real-Time Translation</span>
         <div class="marquee-divider"></div>
@@ -109,14 +109,14 @@
       <p>&copy; <span id="footer-year"></span> Lingora. Built with FastAPI & OpenAI. <a href="https://github.com/tonybnya/lingora" target="_blank">View on GitHub</a></p>
     </footer>
 
-    <!-- Three.js / WebGL Particle System -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
-    <script src="{{ url_for('static', path='/js/index.js') }}"></script>
+    <!-- Three.js / WebGL Particle System (deferred + lazy-init via requestIdleCallback) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js" defer></script>
+    <script src="{{ url_for('static', path='/js/index.js') }}" defer></script>
 
-    <!-- GSAP Scroll Animations -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="{{ url_for('static', path='/js/indexGSAP.js') }}"></script>
+    <!-- GSAP Scroll Animations (deferred + lazy-init via requestIdleCallback) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" defer></script>
+    <script src="{{ url_for('static', path='/js/indexGSAP.js') }}" defer></script>
 
 </body>
 </html>

@@ -1,5 +1,7 @@
 (function () {
     document.getElementById('footer-year').textContent = new Date().getFullYear();
+
+    function init() {
     const canvas = document.getElementById('bg-canvas');
     if (!window.THREE) { console.warn('Three.js not loaded.'); return; }
 
@@ -72,4 +74,14 @@
         camera.updateProjectionMatrix();
         renderer.setSize(window.innerWidth, window.innerHeight);
     });
+    }
+
+    // Defer the heavy WebGL scene until the browser is idle so the page
+    // text and CSS paint first. 2s hard ceiling in case the callback
+    // never fires (some browsers throttle idle in background tabs).
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(init, { timeout: 2000 });
+    } else {
+        setTimeout(init, 200);
+    }
 })();

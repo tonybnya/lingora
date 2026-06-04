@@ -1,4 +1,6 @@
 (function () {
+    function init() {
+    if (!window.gsap) { console.warn('GSAP not loaded.'); return; }
     gsap.registerPlugin(ScrollTrigger);
 
     // Hero Text Reveal
@@ -62,4 +64,12 @@
         stagger: 0.15,
         ease: "power3.out"
     });
+    }
+
+    // Defer scroll animations until the browser is idle — page paints first.
+    if ('requestIdleCallback' in window) {
+        requestIdleCallback(init, { timeout: 2000 });
+    } else {
+        setTimeout(init, 200);
+    }
 })();
