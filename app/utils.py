@@ -80,7 +80,7 @@ async def _translate_gemini(text: str, language: str) -> str:
     )
     client = _get_gemini_client()
     response = await client.aio.models.generate_content(
-        model="gemini-2.0-flash",
+        model="gemini-2.5-flash",
         contents=prompt,
     )
     return response.text.strip()
