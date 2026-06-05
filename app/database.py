@@ -1,23 +1,33 @@
 """
 Script Name : database.py
-Description : Database configuration for Lingora.
+Description : Database configuration and declarative base for Lingora.
 Author      : @tonybnya
 """
 
 import os
-from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from datetime import datetime, timezone
 
-# Determine database URL based on environment
+from sqlalchemy import create_engine
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
+
+
+class Base(DeclarativeBase):
+    """Declarative base for all Lingora models."""
+
+
+def _utcnow() -> datetime:
+    """Timezone-aware UTC now. Used as SQLAlchemy default/onupdate."""
+    return datetime.now(timezone.utc)
+
+
+# Determine database URL based on environment.
 # In development, use SQLite. In production, use PostgreSQL.
 # The DATABASE_URL environment variable should be set in production.
-SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./lingora.db")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./lingora.db")
 
-engine = create_engine(SQLALCHEMY_DATABASE_URL, echo=True)
+engine = create_engine(DATABASE_URL)
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-# Session = scoped_session(session_factory) # Uncomment this line and comment the above when in production
-Base = declarative_base()
 
 
 def get_db():

@@ -4,19 +4,14 @@ Description : SQLAlchemy models for the Lingora translation service.
 Author      : @tonybnya
 """
 
-from sqlalchemy import Column, Integer, String, DateTime, ForeignKey, create_engine
-from sqlalchemy.ext.declarative import declarative_base
+from __future__ import annotations
+
 from datetime import datetime
-import os
 
-Base = declarative_base()
+from sqlalchemy import DateTime, ForeignKey, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column
 
-# Determine database URL based on environment
-# In development, use SQLite. In production, use PostgreSQL.
-# The DATABASE_URL environment variable should be set in production.
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./lingora.db")
-
-engine = create_engine(DATABASE_URL)
+from database import Base, _utcnow, engine
 
 
 class TranslationRequest(Base):
@@ -24,14 +19,21 @@ class TranslationRequest(Base):
 
     __tablename__ = "translation_requests"
 
-    id = Column(Integer, primary_key=True, index=True)
-    text = Column(String, nullable=False)
-    languages = Column(String, nullable=False)
-    status = Column(String, default="in progress", nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    text: Mapped[str] = mapped_column(String, nullable=False)
+    languages: Mapped[str] = mapped_column(String, nullable=False)
+    status: Mapped[str] = mapped_column(String, default="in progress", nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        default=_utcnow,
+        onupdate=_utcnow,
+        nullable=False,
+    )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<TranslationRequest(id={self.id}, status={self.status})>"
 
 
@@ -40,13 +42,17 @@ class TranslationResult(Base):
 
     __tablename__ = "translation_results"
 
-    id = Column(Integer, primary_key=True, index=True)
-    request_id = Column(Integer, ForeignKey("translation_requests.id"), nullable=False)
-    language = Column(String, nullable=False)
-    translated_text = Column(String, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    request_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("translation_requests.id"), nullable=False
+    )
+    language: Mapped[str] = mapped_column(String, nullable=False)
+    translated_text: Mapped[str] = mapped_column(String, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<TranslationResult(id={self.id}, language={self.language})>"
 
 
@@ -55,14 +61,18 @@ class IndividualTranslations(Base):
 
     __tablename__ = "individual_translations"
 
-    id = Column(Integer, primary_key=True, index=True)
-    request_id = Column(Integer, ForeignKey("translation_requests.id"), nullable=False)
-    translated_text = Column(String, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow)
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
+    request_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("translation_requests.id"), nullable=False
+    )
+    translated_text: Mapped[str] = mapped_column(String, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, nullable=False
+    )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return f"<IndividualTranslations(id={self.id}, request_id={self.request_id})>"
 
 
 # Create all tables in the database
-Base.metadata.create_all(engine)
+Base.metadata.create_all(bind=engine)

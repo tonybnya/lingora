@@ -118,7 +118,9 @@ def test_translate_uses_openai_v1_api(client, db_session, monkeypatch):
     # The v1.x async client was actually called
     fake_constructor.assert_called_once()
     fake_client.chat.completions.create.assert_awaited_once()
-    call_kwargs = fake_client.chat.completions.create.await_args.kwargs
+    call = fake_client.chat.completions.create.await_args
+    assert call is not None
+    call_kwargs = call.kwargs
     assert call_kwargs["model"] == "gpt-5.3"
     assert {"role": "user", "content": "morning"} in call_kwargs["messages"]
 

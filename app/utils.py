@@ -6,7 +6,7 @@ Author      : @tonybnya
 
 import os
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List
 
 # Third-party
@@ -88,7 +88,7 @@ async def _translate_gemini(text: str, language: str) -> str:
         model="gemini-2.5-flash",
         contents=prompt,
     )
-    return response.text.strip()
+    return (response.text or "").strip()
 
 
 #  Orchestration
@@ -124,7 +124,7 @@ async def process_translations(
         )
         if request:
             request.status = "completed"
-            request.updated_at = datetime.utcnow()
+            request.updated_at = datetime.now(timezone.utc)
             db.commit()
     except Exception as exc:
         db.rollback()
@@ -142,7 +142,7 @@ async def process_translations(
             )
             if request:
                 request.status = "failed"
-                request.updated_at = datetime.utcnow()
+                request.updated_at = datetime.now(timezone.utc)
                 db.commit()
         except Exception:
             db.rollback()
