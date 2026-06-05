@@ -86,25 +86,37 @@ body {
   min-height: 100vh;
 }
 
-/* Navigation */
-nav {
+/* Navigation — floating glass pill overlaid on the hero scene */
+.hero-nav {
+  position: absolute;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6;
+  width: calc(100% - 48px);
+  max-width: 1080px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 32px 48px;
-  position: relative;
-  z-index: 20;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 10px 12px 10px 22px;
+  background: rgba(18, 11, 9, 0.38);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 9999px;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 .nav-logo {
   font-family: var(--font-display);
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 700;
   color: var(--text-primary);
   text-decoration: none;
+  letter-spacing: 0.3px;
 }
 .nav-links {
   display: flex;
-  gap: 32px;
+  gap: 28px;
   list-style: none;
   margin: 0;
   padding: 0;
@@ -122,44 +134,249 @@ nav {
 .nav-links a:hover {
   opacity: 1;
 }
+.nav-cta {
+  padding: 9px 18px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #0a0a0a;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  text-decoration: none;
+  border-radius: 9999px;
+  white-space: nowrap;
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+.nav-cta:hover {
+  background: #fff;
+  transform: translateY(-1px);
+}
 
-/* Hero Section */
+/* Hero Section — full-bleed cinematic frame */
 .hero {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 85vh;
-  padding: 48px;
+  padding: 16px;
   position: relative;
   z-index: 10;
 }
-.hero-container {
-  max-width: 1000px;
+
+/* The rounded, cinematic stage that holds the atmosphere + content */
+.hero-scene {
+  position: relative;
   width: 100%;
+  min-height: 90vh;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 40px 120px -40px rgba(0, 0, 0, 0.85);
+  background: linear-gradient(
+    180deg,
+    #08080a 0%,
+    #120a0c 24%,
+    #2c120b 48%,
+    #7a2c12 72%,
+    #c14a1e 88%,
+    #e85d22 100%
+  );
+}
+
+/* Faint warm cloud banding in the upper sky */
+.hero-sky {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      120% 60% at 78% 18%,
+      rgba(255, 190, 150, 0.14),
+      transparent 55%
+    ),
+    radial-gradient(
+      90% 50% at 18% 26%,
+      rgba(255, 160, 120, 0.1),
+      transparent 60%
+    ),
+    radial-gradient(
+      140% 70% at 50% 0%,
+      rgba(0, 0, 0, 0.5),
+      transparent 45%
+    );
+}
+
+/* Fiery launch glow rising from the bottom-center */
+.hero-glow {
+  position: absolute;
+  left: 50%;
+  bottom: -14%;
+  width: 72%;
+  height: 60%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at 50% 100%,
+    rgba(255, 200, 150, 0.95) 0%,
+    rgba(232, 93, 34, 0.7) 26%,
+    rgba(232, 93, 34, 0.28) 52%,
+    transparent 74%
+  );
+  filter: blur(6px);
+}
+
+/* The rocket launch beam */
+.hero-beam {
+  position: absolute;
+  left: 50%;
+  top: 11%;
+  width: 2.5px;
+  height: 47%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  border-radius: 9999px;
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.95) 14%,
+    #ffd2a6 46%,
+    #e85d22 100%
+  );
+  box-shadow:
+    0 0 12px 2px rgba(255, 205, 160, 0.8),
+    0 0 42px 6px rgba(232, 93, 34, 0.6);
+}
+.hero-beam::before {
+  content: "";
+  position: absolute;
+  top: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 14px 4px rgba(255, 255, 255, 0.9);
+}
+
+/* Layered mountain silhouettes */
+.hero-range {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+.hero-range--back {
+  height: 34%;
+  opacity: 0.72;
+  background: linear-gradient(180deg, #1a0d0a, #0a0606);
+  clip-path: polygon(
+    0 55%,
+    12% 38%,
+    26% 52%,
+    40% 30%,
+    55% 50%,
+    70% 28%,
+    84% 46%,
+    100% 35%,
+    100% 100%,
+    0 100%
+  );
+}
+.hero-range--front {
+  height: 29%;
+  background: linear-gradient(180deg, #0c0605, #050202);
+  clip-path: polygon(
+    0 72%,
+    15% 52%,
+    30% 67%,
+    48% 44%,
+    63% 64%,
+    78% 47%,
+    92% 63%,
+    100% 54%,
+    100% 100%,
+    0 100%
+  );
+}
+
+/* Edge darkening for text legibility */
+.hero-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse at 50% 42%,
+      transparent 42%,
+      rgba(8, 6, 6, 0.6) 100%
+    ),
+    linear-gradient(180deg, rgba(8, 6, 6, 0.55) 0%, transparent 22%);
+}
+
+/* Hero Content — lower-center, like the reference */
+.hero-content {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 9%;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 840px;
+  padding: 0 32px;
+  box-sizing: border-box;
   text-align: center;
+  z-index: 5;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 15px;
+  margin-bottom: 26px;
+  border-radius: 9999px;
+  background: rgba(20, 12, 10, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.85);
+}
+.hero-badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: 0 0 8px 1px var(--primary);
 }
 
 /* Hero Text */
-.hero h1 {
+.hero-content h1 {
   font-family: var(--font-display);
-  font-size: 96px;
-  line-height: 105px;
+  font-size: 84px;
+  line-height: 0.98;
   font-weight: 400;
-  margin-bottom: 24px;
-  letter-spacing: -2px;
+  margin: 0 0 20px;
+  letter-spacing: -1.5px;
+  color: #f5ece4;
+  text-shadow: 0 2px 40px rgba(0, 0, 0, 0.45);
 }
-.hero h1 .accent {
+.hero-content h1 .accent {
   color: var(--primary);
   font-style: italic;
 }
-.hero p {
+.hero-content p {
   font-family: var(--font-body);
-  font-size: 18px;
-  color: rgba(255, 255, 255, 0.7);
-  max-width: 550px;
-  margin: 0 auto 48px auto;
-  line-height: 1.6;
+  font-size: 15px;
+  color: rgba(245, 236, 228, 0.72);
+  max-width: 440px;
+  margin: 0 auto 30px auto;
+  line-height: 1.65;
   font-weight: 300;
+  letter-spacing: 0.2px;
 }
 
 /* CTA Button */
@@ -330,9 +547,15 @@ nav {
   margin: 0 auto 40px auto;
   line-height: 1.1;
 }
-.cta-section h2 .accent {
+.cta-section h2 .accent,
+.lingora {
   color: var(--primary);
   font-style: italic;
+}
+.accent,
+.lingora {
+  font-weight: bold;
+  font-family: var(--font-display);
 }
 .cta-section p {
   font-size: 18px;
@@ -394,21 +617,47 @@ html {
 
 /* Responsive */
 @media (max-width: 768px) {
-  .hero h1 {
-    font-size: 48px;
-    line-height: 56px;
+  .hero {
+    padding: 8px;
+  }
+  .hero-scene {
+    min-height: 88vh;
+    border-radius: 16px;
+  }
+  .hero-nav {
+    top: 12px;
+    width: calc(100% - 24px);
+    padding: 8px 10px 8px 16px;
+    gap: 12px;
+  }
+  .hero-nav .nav-links {
+    display: none;
+  }
+  .nav-logo {
+    font-size: 18px;
+  }
+  .hero-content {
+    bottom: 8%;
+    padding: 0 20px;
+  }
+  .hero-content h1 {
+    font-size: 34px;
+    line-height: 1.05;
+    letter-spacing: -0.5px;
+  }
+  .hero-content p {
+    font-size: 14px;
+    max-width: 100%;
+  }
+  .nav-cta {
+    font-size: 9.5px;
+    padding: 8px 14px;
   }
   .features {
     grid-template-columns: 1fr;
   }
-  .hero,
   .cta-section {
     padding: 24px;
-  }
-  nav {
-    padding: 24px;
-    flex-direction: column;
-    gap: 16px;
   }
   .hero-card {
     padding: 32px;
