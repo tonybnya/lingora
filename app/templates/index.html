@@ -1,139 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lingora - Home | AI Translation Service</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/solar-icons@0.1.0/css/icon.min.css" rel="stylesheet">
-    <link href="{{ url_for('static', path='/css/index.css') }}" rel="stylesheet">
-    <link rel="icon" type="image/png" href="{{ url_for('static', path='/images/favicon.png') }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lingora - Home | AI Translation Service</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/solar-icons@0.1.0/css/icon.min.css" rel="stylesheet">
+  <link href="{{ url_for('static', path='/css/index.css') }}" rel="stylesheet">
+  <link rel="icon" type="image/png" href="{{ url_for('static', path='/images/favicon.png') }}">
 </head>
 <body>
 
-    <!-- WebGL / Canvas Background -->
-    <canvas id="bg-canvas"></canvas>
+  <!-- WebGL / Canvas Background -->
+  <canvas id="bg-canvas"></canvas>
 
-    <!-- Structural Grid Overlay -->
-    <div class="grid-overlay"></div>
+  <!-- Structural Grid Overlay -->
+  <div class="grid-overlay"></div>
 
-    <!-- Hero Section -->
-    <section class="hero">
-      <div class="hero-scene">
-        <!-- Cinematic atmosphere (CSS-only: sky, launch beam, fire glow, mountain ranges) -->
-        <div class="hero-sky"></div>
-        <div class="hero-glow"></div>
-        <div class="hero-range hero-range--back"></div>
-        <div class="hero-beam"></div>
-        <div class="hero-range hero-range--front"></div>
-        <div class="hero-vignette"></div>
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-scene">
+      <!-- Cinematic atmosphere (CSS-only: sky, launch beam, fire glow, mountain ranges) -->
+      <div class="hero-sky"></div>
+      <div class="hero-glow"></div>
+      <div class="hero-range hero-range--back"></div>
+      <div class="hero-beam"></div>
+      <div class="hero-range hero-range--front"></div>
+      <div class="hero-vignette"></div>
 
-        <!-- Floating glass navigation -->
-        <nav class="hero-nav">
-          <a href="/" class="nav-logo" aria-label="Lingora home">
-            <img src="{{ url_for('static', path='/images/logo.png') }}" alt="Lingora" width="40" height="40" decoding="async">
-            <span class="nav-logo-text">Lingora</span>
-          </a>
-          <ul class="nav-links">
-            <li><a href="#features">Features</a></li>
-          </ul>
-          <a href="/translator" class="nav-cta">Start Translating</a>
-        </nav>
+      <!-- Floating glass navigation -->
+      <nav class="hero-nav">
+        <a href="/" class="nav-logo" aria-label="Lingora home">
+          <img src="{{ url_for('static', path='/images/logo.png') }}" alt="Lingora" width="40" height="40" decoding="async">
+          <span class="nav-logo-text">Lingora</span>
+        </a>
+        <ul class="nav-links">
+          <li><a href="#features">Features</a></li>
+        </ul>
+        <a href="/translator" class="nav-cta">Start Translating</a>
+      </nav>
 
-        <!-- Hero Content -->
-        <div class="hero-content">
-          <h1 class="reveal-text">Break Language<br><span class="accent">Barriers</span> with AI</h1>
-          <p class="reveal-text">
-              Real-time, intelligent translations powered by AI. Communicate seamlessly in over 50 languages with natural, context-aware results.
-          </p>
-          <a href="/translator" class="btn-primary">Start Translating</a>
-        </div>
-      </div>
-
-      <!-- Hero Card / Visual -->
-      <div class="hero-card gradient-border">
-          <div class="card-icon-wrapper">
-            <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <circle cx="12" cy="12" r="10" />
-              <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20z" />
-              <path d="M2 12h20" />
-            </svg>
-          </div>
-          <h2>Next-Level Precision</h2>
-          <p>Context-aware translations that preserve nuance, cultural references, and tone. Built for professionals who refuse to compromise on accuracy.</p>
-        </div>
-    </section>
-
-    <!-- Feature Grid -->
-    <section id="features" class="features">
-      <div class="feature-card">
-        <div class="feature-num">01 — Real-Time</div>
-        <h3>Instant Results</h3>
-        <p>Get translations as you type. Zero latency, maximum accuracy. Powered by the latest GPT-4 architecture for near-instant processing.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-num">02 — Context</div>
-        <h3>Nuanced Meaning</h3>
-        <p>AI that understands idioms, technical jargon, and cultural context. No more awkward literal translations that miss the point.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-num">03 — Scale</div>
-        <h3>50+ Languages</h3>
-        <p>From major global languages to regional dialects. Support for text, documents, and conversational flow in one unified platform.</p>
-      </div>
-    </section>
-
-    <!-- Features / Impact Marquee -->
-    <div class="tech-marquee">
-      <div class="marquee-track">
-        <span>50+ Languages</span>
-        <div class="marquee-divider"></div>
-        <span>Real-Time Translation</span>
-        <div class="marquee-divider"></div>
-        <span>Context-Aware AI</span>
-        <div class="marquee-divider"></div>
-        <span>Multi-Provider Engine</span>
-        <div class="marquee-divider"></div>
-        <span>Translation History</span>
-        <div class="marquee-divider"></div>
-        <!-- Repeat for smooth loop -->
-        <span>50+ Languages</span>
-        <div class="marquee-divider"></div>
-        <span>Real-Time Translation</span>
-        <div class="marquee-divider"></div>
-        <span>Context-Aware AI</span>
-        <div class="marquee-divider"></div>
-        <span>Multi-Provider Engine</span>
-        <div class="marquee-divider"></div>
-        <span>Translation History</span>
-        <div class="marquee-divider"></div>
+      <!-- Hero Content -->
+      <div class="hero-content">
+        <h1 class="reveal-text">Break Language<br><span class="accent">Barriers</span> with AI</h1>
+        <p class="reveal-text">
+          Real-time, intelligent translations powered by AI. Communicate seamlessly in over 50 languages with natural, context-aware results.
+        </p>
+        <a href="/translator" class="btn-primary">Start Translating</a>
       </div>
     </div>
 
-    <!-- Final CTA -->
-    <section class="cta-section">
-      <h2 class="reveal-text">The World is <span class="accent">Speaking</span>.<br>Are you Listening?</h2>
-      <p class="reveal-text">Join people who rely on <span class="lingora">Lingora</span> for easy and quick translations.</p>
-      <a href="/translator" class="btn-primary">Start Translating</a>
-    </section>
+    <!-- Hero Card / Visual -->
+    <div class="hero-card gradient-border">
+      <div class="card-icon-wrapper">
+        <svg class="card-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20z" />
+          <path d="M2 12h20" />
+        </svg>
+      </div>
+      <h2>Next-Level Precision</h2>
+      <p>Context-aware translations that preserve nuance, cultural references, and tone. Built for professionals who refuse to compromise on accuracy.</p>
+    </div>
+  </section>
 
-    <!-- Footer -->
-    <footer>
-      <a href="/" class="footer-brand" aria-label="Lingora home">
-        <img src="{{ url_for('static', path='/images/logo.png') }}" alt="Lingora" width="32" height="32" decoding="async">
-        <span class="footer-brand-name">Lingora</span>
-      </a>
-      <p>&copy; <span id="footer-year"></span> • <a href="https://github.com/tonybnya/lingora" target="_blank">View on GitHub</a></p>
-    </footer>
+  <!-- Feature Grid -->
+  <section id="features" class="features">
+    <div class="feature-card">
+      <div class="feature-num">01 — Real-Time</div>
+      <h3>Instant Results</h3>
+      <p>Get translations as you type. Zero latency, maximum accuracy. Powered by the latest GPT-4 architecture for near-instant processing.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-num">02 — Context</div>
+      <h3>Nuanced Meaning</h3>
+      <p>AI that understands idioms, technical jargon, and cultural context. No more awkward literal translations that miss the point.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feature-num">03 — Scale</div>
+      <h3>50+ Languages</h3>
+      <p>From major global languages to regional dialects. Support for text, documents, and conversational flow in one unified platform.</p>
+    </div>
+  </section>
 
-    <!-- Three.js / WebGL Particle System (deferred + lazy-init via requestIdleCallback) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js" defer></script>
-    <script src="{{ url_for('static', path='/js/index.js') }}" defer></script>
+  <!-- Features / Impact Marquee -->
+  <div class="tech-marquee">
+    <div class="marquee-track">
+      <span>50+ Languages</span>
+      <div class="marquee-divider"></div>
+      <span>Real-Time Translation</span>
+      <div class="marquee-divider"></div>
+      <span>Context-Aware AI</span>
+      <div class="marquee-divider"></div>
+      <span>Multi-Provider Engine</span>
+      <div class="marquee-divider"></div>
+      <span>Translation History</span>
+      <div class="marquee-divider"></div>
+      <!-- Repeat for smooth loop -->
+      <span>50+ Languages</span>
+      <div class="marquee-divider"></div>
+      <span>Real-Time Translation</span>
+      <div class="marquee-divider"></div>
+      <span>Context-Aware AI</span>
+      <div class="marquee-divider"></div>
+      <span>Multi-Provider Engine</span>
+      <div class="marquee-divider"></div>
+      <span>Translation History</span>
+      <div class="marquee-divider"></div>
+    </div>
+  </div>
 
-    <!-- GSAP Scroll Animations (deferred + lazy-init via requestIdleCallback) -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" defer></script>
-    <script src="{{ url_for('static', path='/js/indexGSAP.js') }}" defer></script>
+  <!-- Final CTA -->
+  <section class="cta-section">
+    <h2 class="reveal-text">The World is <span class="accent">Speaking</span>.<br>Are you Listening?</h2>
+    <p class="reveal-text">Join people who rely on <span class="lingora">Lingora</span> for easy and quick translations.</p>
+    <a href="/translator" class="btn-primary">Start Translating</a>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <a href="/" class="footer-brand" aria-label="Lingora home">
+      <img src="{{ url_for('static', path='/images/logo.png') }}" alt="Lingora" width="32" height="32" decoding="async">
+      <span class="footer-brand-name">Lingora</span>
+    </a>
+    <p>&copy; <span id="footer-year"></span> • <a href="https://github.com/tonybnya/lingora" target="_blank">View on GitHub</a></p>
+  </footer>
+
+  <!-- Three.js / WebGL Particle System (deferred + lazy-init via requestIdleCallback) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js" defer></script>
+  <script src="{{ url_for('static', path='/js/index.js') }}" defer></script>
+
+  <!-- GSAP Scroll Animations (deferred + lazy-init via requestIdleCallback) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" defer></script>
+  <script src="{{ url_for('static', path='/js/indexGSAP.js') }}" defer></script>
 
 </body>
 </html>

@@ -1,109 +1,109 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lingora - Translator | AI Translation Service</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    <link href="{{ url_for('static', path='/css/translator.css') }}" rel="stylesheet">
-    <link rel="icon" type="image/png" href="{{ url_for('static', path='/images/favicon.png') }}">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lingora - Translator | AI Translation Service</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="{{ url_for('static', path='/css/translator.css') }}" rel="stylesheet">
+  <link rel="icon" type="image/png" href="{{ url_for('static', path='/images/favicon.png') }}">
 </head>
 <body>
 
-    <div class="grid-overlay"></div>
+  <div class="grid-overlay"></div>
 
-    <!-- Notification container (DESIGN.md styled) -->
-    <div id="notify-container" class="notify-container" aria-live="polite" aria-atomic="true"></div>
+  <!-- Notification container (DESIGN.md styled) -->
+  <div id="notify-container" class="notify-container" aria-live="polite" aria-atomic="true"></div>
 
-    <nav>
-      <a href="/" class="nav-logo" aria-label="Lingora home">
-        <img src="{{ url_for('static', path='/images/logo.png') }}" alt="Lingora" width="40" height="40" decoding="async">
-        <span class="nav-logo-text">Lingora</span>
-      </a>
-      <ul class="nav-links">
-        <li><a href="/">Home</a></li>
-      </ul>
-    </nav>
+  <nav>
+    <a href="/" class="nav-logo" aria-label="Lingora home">
+      <img src="{{ url_for('static', path='/images/logo.png') }}" alt="Lingora" width="40" height="40" decoding="async">
+      <span class="nav-logo-text">Lingora</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="/">Home</a></li>
+    </ul>
+  </nav>
 
-    <div class="container">
+  <div class="container">
 
-      <!-- Main Translation Interface -->
-      <div class="glass-panel">
-        <span class="section-label">Translation Service</span>
-        <h1 class="section-title"><span class="accent">Translate</span> your Text</h1>
+    <!-- Main Translation Interface -->
+    <div class="glass-panel">
+      <span class="section-label">Translation Service</span>
+      <h1 class="section-title"><span class="accent">Translate</span> your Text</h1>
 
-        <form id="translator-form" onsubmit="event.preventDefault(); submitTranslation();">
-          <!-- Text Input -->
-          <div class="form-group">
-            <label for="input-text" class="form-label">Text to Translate</label>
-            <textarea id="input-text" class="form-textarea" placeholder="Enter your text here..." required></textarea>
-          </div>
-
-          <!-- Languages Input -->
-          <div class="form-group">
-            <label for="languages" class="form-label">Languages (comma-separated)</label>
-            <input type="text" id="languages" class="form-input" placeholder="e.g. French, Spanish, Japanese" required>
-          </div>
-
-          <!-- Translate Button -->
-          <button type="submit" id="translate-btn" class="btn btn-primary">Translate</button>
-        </form>
-
-        <!-- HelixDot-inspired Progress Bar -->
-        <div id="progress-container" class="progress-container">
-          <div class="progress-meta">
-            <span class="progress-task">Task <span id="task-id"></span></span>
-            <span class="progress-stage" id="progress-stage">Submitting…</span>
-          </div>
-        </div>
-      </div>
-
-      <!-- Results Section (hidden by default until a translation completes) -->
-      <div id="results" class="glass-panel results-area"></div>
-
-      <!-- Check Translation Status -->
-      <div class="glass-panel">
-        <span class="section-label">Check Status</span>
-        <h2 class="section-title">Check <span class="accent">Translation</span> Status</h2>
-
-        <form id="id-check-form" onsubmit="event.preventDefault(); checkTranslationStatus(event);">
-          <div class="form-group id-check-group">
-            <div class="form-group" style="flex-grow: 1; margin-bottom: 0;">
-              <label for="translation-id" class="form-label">Enter Translation ID</label>
-              <input type="text" id="translation-id" class="form-input" placeholder="e.g. 12345">
-            </div>
-            <div style="display: flex; gap: 12px;">
-              <button type="submit" class="btn btn-outline">Check Status</button>
-              <button type="button" class="btn btn-outline" onclick="checkTranslationContent()">Check Content</button>
-            </div>
-          </div>
-        </form>
-
-        <div id="status-container" class="check-result-container">
-          <div class="result-header-content">
-            <span class="result-lang">Status</span>
-          </div>
-          <pre id="statusResult" class="check-result-pre"></pre>
+      <form id="translator-form" onsubmit="event.preventDefault(); submitTranslation();">
+        <!-- Text Input -->
+        <div class="form-group">
+          <label for="input-text" class="form-label">Text to Translate</label>
+          <textarea id="input-text" class="form-textarea" placeholder="Enter your text here..." required></textarea>
         </div>
 
-        <div id="content-container" class="check-result-container">
-          <div class="result-header-content">
-            <span class="result-lang">Content</span>
-          </div>
-          <pre id="contentResult" class="check-result-pre"></pre>
+        <!-- Languages Input -->
+        <div class="form-group">
+          <label for="languages" class="form-label">Languages (comma-separated)</label>
+          <input type="text" id="languages" class="form-input" placeholder="e.g. French, Spanish, Japanese" required>
+        </div>
+
+        <!-- Translate Button -->
+        <button type="submit" id="translate-btn" class="btn btn-primary">Translate</button>
+      </form>
+
+      <!-- HelixDot-inspired Progress Bar -->
+      <div id="progress-container" class="progress-container">
+        <div class="progress-meta">
+          <span class="progress-task">Task <span id="task-id"></span></span>
+          <span class="progress-stage" id="progress-stage">Submitting…</span>
         </div>
       </div>
     </div>
 
-    <footer class="translator-footer">
-        <a href="/" class="footer-brand" aria-label="Lingora home">
-          <img src="{{ url_for('static', path='/images/logo.png') }}" alt="Lingora" width="32" height="32" decoding="async">
-          <span class="footer-brand-name">Lingora</span>
-        </a>
-        <p>&copy; <span id="footer-year"></span> • <a href="https://github.com/tonybnya/lingora" target="_blank">View on GitHub</a></p>
-    </footer>
+    <!-- Results Section (hidden by default until a translation completes) -->
+    <div id="results" class="glass-panel results-area"></div>
 
-    <script src="https://cdn.jsdelivr.net/npm/axios@1.17.0/dist/axios.min.js"></script>
-    <script src="{{ url_for('static', path='/js/translator.js') }}"></script>
+    <!-- Check Translation Status -->
+    <div class="glass-panel">
+      <span class="section-label">Check Status</span>
+      <h2 class="section-title">Check <span class="accent">Translation</span> Status</h2>
+
+      <form id="id-check-form" onsubmit="event.preventDefault(); checkTranslationStatus(event);">
+        <div class="form-group id-check-group">
+          <div class="form-group" style="flex-grow: 1; margin-bottom: 0;">
+            <label for="translation-id" class="form-label">Enter Translation ID</label>
+            <input type="text" id="translation-id" class="form-input" placeholder="e.g. 12345">
+          </div>
+          <div style="display: flex; gap: 12px;">
+            <button type="submit" class="btn btn-outline">Check Status</button>
+            <button type="button" class="btn btn-outline" onclick="checkTranslationContent()">Check Content</button>
+          </div>
+        </div>
+      </form>
+
+      <div id="status-container" class="check-result-container">
+        <div class="result-header-content">
+          <span class="result-lang">Status</span>
+        </div>
+        <pre id="statusResult" class="check-result-pre"></pre>
+      </div>
+
+      <div id="content-container" class="check-result-container">
+        <div class="result-header-content">
+          <span class="result-lang">Content</span>
+        </div>
+        <pre id="contentResult" class="check-result-pre"></pre>
+      </div>
+    </div>
+  </div>
+
+  <footer class="translator-footer">
+    <a href="/" class="footer-brand" aria-label="Lingora home">
+      <img src="{{ url_for('static', path='/images/logo.png') }}" alt="Lingora" width="32" height="32" decoding="async">
+      <span class="footer-brand-name">Lingora</span>
+    </a>
+    <p>&copy; <span id="footer-year"></span> • <a href="https://github.com/tonybnya/lingora" target="_blank">View on GitHub</a></p>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/axios@1.17.0/dist/axios.min.js"></script>
+  <script src="{{ url_for('static', path='/js/translator.js') }}"></script>
 </body>
 </html>
