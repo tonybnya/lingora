@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home — Lingora | AI Translation Service</title>
+    <title>Lingora - Home | AI Translation Service</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Space+Mono:wght@400;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/solar-icons@0.1.0/css/icon.min.css" rel="stylesheet">
     <link href="{{ url_for('static', path='/css/index.css') }}" rel="stylesheet">
-    <link rel="icon" type="image/x-icon" href="{{ url_for('static', path='/images/favicon.ico') }}">
+    <link rel="icon" type="image/png" href="{{ url_for('static', path='/images/favicon.png') }}">
 </head>
 <body>
 
@@ -30,7 +30,10 @@
 
         <!-- Floating glass navigation -->
         <nav class="hero-nav">
-          <a href="#" class="nav-logo">Lingora</a>
+          <a href="/" class="nav-logo" aria-label="Lingora home">
+            <img src="{{ url_for('static', path='/images/logo.png') }}" alt="Lingora" width="40" height="40" decoding="async">
+            <span class="nav-logo-text">Lingora</span>
+          </a>
           <ul class="nav-links">
             <li><a href="#features">Features</a></li>
           </ul>
@@ -120,6 +123,10 @@
 
     <!-- Footer -->
     <footer>
+      <a href="/" class="footer-brand" aria-label="Lingora home">
+        <img src="{{ url_for('static', path='/images/logo.png') }}" alt="Lingora" width="32" height="32" decoding="async">
+        <span class="footer-brand-name">Lingora</span>
+      </a>
       <p>&copy; <span id="footer-year"></span> Lingora. <a href="https://github.com/tonybnya/lingora" target="_blank">View on GitHub</a></p>
     </footer>
 

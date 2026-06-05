@@ -107,12 +107,21 @@ body {
   -webkit-backdrop-filter: blur(14px);
 }
 .nav-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
   font-family: var(--font-display);
   font-size: 22px;
   font-weight: 700;
   color: var(--text-primary);
   text-decoration: none;
   letter-spacing: 0.3px;
+}
+.nav-logo img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  display: block;
 }
 .nav-links {
   display: flex;
@@ -587,11 +596,34 @@ body {
 
 /* Footer */
 footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
   text-align: center;
   padding: 48px;
   border-top: 1px solid rgba(255, 255, 255, 0.05);
   position: relative;
   z-index: 10;
+}
+.footer-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+.footer-brand img {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  display: block;
+}
+.footer-brand-name {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.3px;
 }
 footer p {
   font-size: 14px;
@@ -636,6 +668,11 @@ html {
   }
   .nav-logo {
     font-size: 18px;
+    gap: 8px;
+  }
+  .nav-logo img {
+    width: 32px;
+    height: 32px;
   }
   .hero-content {
     bottom: 8%;

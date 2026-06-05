@@ -54,6 +54,19 @@ body {
     width: 100%;
 }
 
+/* Logo at top of error page — linked to home */
+.error-logo {
+    display: inline-block;
+    margin-bottom: 32px;
+    text-decoration: none;
+}
+.error-logo img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    display: block;
+}
+
 /* Error code */
 .error-code {
     font-family: var(--font-display);
