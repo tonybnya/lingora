@@ -20,6 +20,10 @@ cd app && uv run fastapi dev main.py
 ```
 Static files use `Path(__file__).parent` so they are CWD-independent.
 
+## Schema changes
+
+SQLite `Base.metadata.create_all` only creates missing tables — it does **not** alter existing columns. If you rename or remove a column in a model, delete `app/lingora.db` to recreate it. Alembic is a dependency but not wired up; add migrations before production.
+
 ## Production
 
 `gunicorn` is a dependency but no config or startup script exists. Before deploying, add a `gunicorn.conf.py` or invocation. Likely use `gunicorn -k uvicorn.workers.UvicornWorker main:app`.
