@@ -24,7 +24,7 @@ load_dotenv()
 from database import engine, get_db, SessionLocal  # noqa: E402
 from schemas import TranslationRequestSchema  # noqa: E402
 import models  # noqa: E402
-from utils import process_translations, _get_provider  # noqa: E402
+from utils import process_translations  # noqa: E402
 
 # Create database tables
 models.Base.metadata.create_all(bind=engine)
@@ -97,19 +97,7 @@ def health() -> dict[str, str]:
     except Exception:
         db_status = "error"
 
-    provider_status = "ok"
-    try:
-        provider = _get_provider()
-        if provider == "openai":
-            if not os.getenv("OPENAI_API_KEY"):
-                provider_status = "unconfigured"
-        elif provider == "gemini":
-            if not os.getenv("GEMINI_API_KEY"):
-                provider_status = "unconfigured"
-        else:
-            provider_status = f"unknown:{provider}"
-    except Exception:
-        provider_status = "error"
+    provider_status = "ok" if os.getenv("GEMINI_API_KEY") else "unconfigured"
 
     status = "ok" if db_status == "ok" and provider_status == "ok" else "degraded"
 

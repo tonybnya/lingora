@@ -5,7 +5,7 @@ Author      : @tonybnya
 """
 
 import time
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import AsyncMock, patch
 
 import pytest
 
@@ -87,45 +87,4 @@ def test_translate_marks_failed_when_provider_raises(client, db_session):
     assert db_request.status == "failed"
 
 
-def test_translate_uses_openai_v1_api(client, db_session, monkeypatch):
-    """When TRANSLATION_PROVIDER=openai, must use the v1.x async client.
 
-    Regression: the previous code called ``openai_client.ChatCompletion.acreate``
-    which was removed in openai>=1.0.0.
-    """
-    from models import TranslationResult
-
-    monkeypatch.setenv("TRANSLATION_PROVIDER", "openai")
-
-    fake_response = MagicMock()
-    fake_response.choices = [MagicMock(message=MagicMock(content="bonjour"))]
-    fake_client = MagicMock()
-    fake_client.chat.completions.create = AsyncMock(return_value=fake_response)
-    fake_constructor = MagicMock(return_value=fake_client)
-
-    with patch("utils.AsyncOpenAI", fake_constructor, create=True):
-        resp = client.post(
-            "/translate",
-            json={"text": "morning", "languages": "french"},
-        )
-
-    assert resp.status_code == 200
-    request_id = resp.json()["id"]
-    final = _wait_for_terminal_status(client, request_id, db_session)
-    assert final["status"] == "completed", final
-    assert final["translations"][0]["translated_text"] == "bonjour"
-
-    # The v1.x async client was actually called
-    fake_constructor.assert_called_once()
-    fake_client.chat.completions.create.assert_awaited_once()
-    call = fake_client.chat.completions.create.await_args
-    assert call is not None
-    call_kwargs = call.kwargs
-    assert call_kwargs["model"] == "gpt-5.3"
-    assert {"role": "user", "content": "morning"} in call_kwargs["messages"]
-
-    # Result was persisted
-    rows = db_session.query(TranslationResult).filter_by(request_id=request_id).all()
-    assert len(rows) == 1
-    assert rows[0].language == "french"
-    assert rows[0].translated_text == "bonjour"

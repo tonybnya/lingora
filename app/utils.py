@@ -4,86 +4,36 @@ Description : Utility functions for translation and database operations.
 Author      : @tonybnya
 """
 
-import os
 import logging
 from datetime import datetime, timezone
 from typing import List
 
-# Third-party
-from openai import AsyncOpenAI
 from google import genai
 
-# Local
-# pyrefly: ignore [missing-import]
 from database import SessionLocal
-
-# pyrefly: ignore [missing-import]
 from models import TranslationRequest, TranslationResult
 
 logger = logging.getLogger(__name__)
 
-# Lazy provider clients — read env at call time so tests can switch
-# providers without reloading the module.
-_openai_client: AsyncOpenAI | None = None
 _gemini_client: genai.Client | None = None
-
-
-def _get_provider() -> str:
-    """Read the active provider from the environment on every call."""
-    return os.getenv("TRANSLATION_PROVIDER", "gemini").lower()
-
-
-def _get_openai_client() -> AsyncOpenAI:
-    global _openai_client
-    if _openai_client is None:
-        _openai_client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
-    return _openai_client
 
 
 def _get_gemini_client() -> genai.Client:
     global _gemini_client
     if _gemini_client is None:
+        import os
+
         _gemini_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
     return _gemini_client
 
 
 async def translate_text(text: str, language: str) -> str:
-    """Translate *text* into *language* using the configured LLM provider."""
-    if _get_provider() == "openai":
-        return await _translate_openai(text, language)
-    return await _translate_gemini(text, language)
-
-
-#  OpenAI (v1.x SDK: AsyncOpenAI + client.chat.completions.create)
-async def _translate_openai(text: str, language: str) -> str:
-    client = _get_openai_client()
-    response = await client.chat.completions.create(
-        # OpenAI's current public lineup on the API is roughly: gpt-4o, gpt-4o-mini, gpt-4.1, gpt-4.1-mini, gpt-4.1-nano, o3, o3-mini, o4-mini. Real gpt-5/gpt-5.x haven't shipped on the API as of mid-2026.
-        model="gpt-5.3",
-        messages=[
-            {
-                "role": "system",
-                "content": (
-                    "You are an expert translator. "
-                    f"Translate the following text to {language}. "
-                    "Return ONLY the translated text, without any additional comments, explanation, or quotes."
-                ),
-            },
-            {"role": "user", "content": text},
-        ],
-    )
-    content = response.choices[0].message.content
-    return (content or "").strip()
-
-
-#  Gemini (using the new google-genai SDK)
-async def _translate_gemini(text: str, language: str) -> str:
+    client = _get_gemini_client()
     prompt = (
         f"You are an expert translator. "
         f"Translate the following text to {language}. "
         f"Return ONLY the translated text, without any additional comments, explanation, or quotes:\n\n{text}"
     )
-    client = _get_gemini_client()
     response = await client.aio.models.generate_content(
         model="gemini-2.5-flash",
         contents=prompt,

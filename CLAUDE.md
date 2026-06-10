@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Lingora is a real-time translation service. FastAPI backend, server-rendered Jinja2 templates, vanilla JS frontend (GSAP + Three.js on the landing page, axios on the translator). Translation is LLM-backed with a pluggable provider (Gemini default, OpenAI optional). Note: `README.md` is stale — it says "FastAPI and GPT-4"; the provider is configurable and defaults to Gemini.
+Lingora is a real-time translation service. FastAPI backend, server-rendered Jinja2 templates, vanilla JS frontend (GSAP + Three.js on the landing page, axios on the translator). Translation is Gemini-powered via the google-genai SDK.
 
 ## Commands
 
@@ -17,7 +17,7 @@ cd app && uv run fastapi dev main.py
 
 # Tests (run from repo root — pytest config sets pythonpath/testpaths)
 uv run pytest
-uv run pytest app/tests/test_translate.py::test_translate_uses_openai_v1_api  # single test
+uv run pytest app/tests/test_translate.py::test_translate_marks_failed_when_provider_raises  # single test
 
 # Lint / format / type-check
 uv run ruff check .
@@ -38,9 +38,9 @@ Translation is fire-and-forget via FastAPI `BackgroundTasks`, with the frontend 
 2. `process_translations` (`app/utils.py`) runs after the response is sent. It **opens its own `SessionLocal`** — it cannot use the request-scoped `Depends(get_db)` session because that's already closed by the time a background task runs. It translates into each language, persists a `TranslationResult` per language, then flips the request to `"completed"`. On any exception it rolls back and sets status `"failed"` (never re-raises — re-raising would crash the background runner and the response is already gone).
 3. Frontend (`app/static/js/translator.js`) polls `GET /translate/{id}` until status is `"completed"` or `"failed"`. The status field is the contract between background work and the UI — leaving a request stuck at `"in progress"` hangs the client forever.
 
-### Provider abstraction (`app/utils.py`)
+### Gemini provider (`app/utils.py`)
 
-`translate_text` dispatches on `TRANSLATION_PROVIDER` (env, default `gemini`). Provider clients are lazily constructed and **read env at call time**, not import time, so tests can switch providers per-test via `monkeypatch.setenv`. OpenAI path uses the v1.x `AsyncOpenAI` client (`client.chat.completions.create`) — there's a regression test guarding against the removed `ChatCompletion.acreate`.
+Translation is Gemini-only. The client is lazily constructed at first call so tests can set `GEMINI_API_KEY` before importing.
 
 ### Data layer (`app/database.py`, `app/models.py`)
 

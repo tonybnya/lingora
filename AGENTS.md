@@ -13,8 +13,8 @@ See `CLAUDE.md` for the primary architecture, commands, testing, and frontend br
 
 ## Environment quirks
 
-- `.env.example` says `TRANSLATION_PROVIDER=openai` but the code default is `gemini` (`app/utils.py:33`). Trust the code, not the example.
 - `load_dotenv()` in `main.py` must run before `from database import ...` — the import triggers engine construction that reads `DATABASE_URL`. This order is enforced by `# noqa: E402` placement.
+- Only `GEMINI_API_KEY` is needed. No OpenAI config exists anymore.
 
 ## Dev server
 
