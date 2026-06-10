@@ -298,6 +298,28 @@ nav {
 }
 .result-lang { font-family: var(--font-mono); font-size: 11px; color: var(--primary); }
 .result-text { font-size: 16px; line-height: 1.7; color: var(--text-primary); }
+
+/* Copy Button */
+.btn-copy {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: transparent; border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 2px; padding: 6px 12px;
+  font-family: var(--font-mono); font-size: 10px; text-transform: uppercase;
+  letter-spacing: 1px; color: var(--text-secondary);
+  cursor: pointer; transition: all 0.15s ease;
+}
+.btn-copy:hover { border-color: var(--primary); color: var(--primary); }
+.btn-copy.copied { border-color: #4ade80; color: #4ade80; }
+.btn-copy-icon {
+  width: 12px; height: 12px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='9' y='9' width='13' height='13' rx='2' ry='2'/%3E%3Cpath d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='9' y='9' width='13' height='13' rx='2' ry='2'/%3E%3Cpath d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+.btn-copy.copied .btn-copy-icon {
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E") center/contain no-repeat;
+}
 .result-task { font-family: var(--font-mono); font-size: 11px; color: var(--text-secondary); margin-top: -8px; margin-bottom: 16px; }
 .result-task strong { color: var(--primary); font-weight: 400; }
 .result-empty { font-size: 14px; color: rgba(255, 255, 255, 0.5); padding: 16px 0; }

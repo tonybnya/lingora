@@ -259,12 +259,17 @@
             <div class="result-task">Task <strong>#${taskId}</strong></div>
         `;
         if (t) {
+            const textId = `result-text-${taskId}`;
             html += `
                 <div class="result-card">
                     <div class="result-header">
                         <span class="result-lang">${escapeHtml(t.language)}</span>
+                        <button class="btn-copy" data-target="${textId}" aria-label="Copy translation">
+                            <span class="btn-copy-icon"></span>
+                            <span class="btn-copy-label">Copy</span>
+                        </button>
                     </div>
-                    <div class="result-text">${escapeHtml(t.translated_text)}</div>
+                    <div id="${textId}" class="result-text">${escapeHtml(t.translated_text)}</div>
                 </div>
             `;
         } else {
@@ -272,6 +277,29 @@
         }
         resultsArea.innerHTML = html;
         resultsArea.classList.add('visible');
+
+        resultsArea.querySelectorAll('.btn-copy').forEach((btn) => {
+            btn.addEventListener('click', async () => {
+                const targetId = btn.getAttribute('data-target');
+                const el = document.getElementById(targetId);
+                const text = el ? el.textContent : '';
+                try {
+                    await navigator.clipboard.writeText(text);
+                    btn.classList.add('copied');
+                    btn.querySelector('.btn-copy-label').textContent = 'Copied';
+                    setTimeout(() => {
+                        btn.classList.remove('copied');
+                        btn.querySelector('.btn-copy-label').textContent = 'Copy';
+                    }, 2000);
+                } catch {
+                    notify({
+                        type: 'error',
+                        title: 'Copy failed',
+                        message: 'Could not copy to clipboard.',
+                    });
+                }
+            });
+        });
 
         const idInput = document.getElementById('translation-id');
         if (idInput) idInput.value = taskId;
