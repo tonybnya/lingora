@@ -35,11 +35,11 @@ def test_translate_completes_when_provider_succeeds(client, db_session):
     """POST /translate should enqueue work; status must reach 'completed'."""
     from models import TranslationRequest, TranslationResult
 
-    fake_translate = AsyncMock(side_effect=lambda text, lang: f"[{lang}] {text}")
+    fake_translate = AsyncMock(return_value="Bonjour le monde!")
     with patch("utils.translate_text", fake_translate):
         resp = client.post(
             "/translate",
-            json={"text": "Hello, world!", "languages": "french, german"},
+            json={"text": "Hello, world!", "language": "french"},
         )
 
     assert resp.status_code == 200
@@ -50,19 +50,17 @@ def test_translate_completes_when_provider_succeeds(client, db_session):
     request_id = payload["id"]
     final = _wait_for_terminal_status(client, request_id, db_session)
     assert final["status"] == "completed", final
-    assert len(final["translations"]) == 2
-    by_lang = {t["language"]: t["translated_text"] for t in final["translations"]}
-    assert by_lang == {
-        "french": "[french] Hello, world!",
-        "german": "[german] Hello, world!",
-    }
+    assert len(final["translations"]) == 1
+    assert final["translations"][0]["language"] == "french"
+    assert final["translations"][0]["translated_text"] == "Bonjour le monde!"
 
-    # Verify rows were actually persisted
     db_request = db_session.query(TranslationRequest).filter_by(id=request_id).first()
     assert db_request is not None
     assert db_request.status == "completed"
     rows = db_session.query(TranslationResult).filter_by(request_id=request_id).all()
-    assert len(rows) == 2
+    assert len(rows) == 1
+    assert rows[0].language == "french"
+    assert rows[0].translated_text == "Bonjour le monde!"
 
 
 def test_translate_marks_failed_when_provider_raises(client, db_session):
@@ -73,7 +71,7 @@ def test_translate_marks_failed_when_provider_raises(client, db_session):
     with patch("utils.translate_text", fake_translate):
         resp = client.post(
             "/translate",
-            json={"text": "boom", "languages": "french"},
+            json={"text": "boom", "language": "french"},
         )
 
     assert resp.status_code == 200

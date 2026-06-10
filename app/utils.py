@@ -6,7 +6,6 @@ Author      : @tonybnya
 
 import logging
 from datetime import datetime, timezone
-from typing import List
 
 from google import genai
 
@@ -45,9 +44,9 @@ async def translate_text(text: str, language: str) -> str:
 async def process_translations(
     request_id: int,
     text: str,
-    languages: List[str],
+    language: str,
 ) -> None:
-    """Translate *text* into each *language* and persist results.
+    """Translate *text* into *language* and persist the result.
 
     Owns its own DB session. Background tasks run after the FastAPI request
     response is sent, so we cannot rely on the request-scoped session from
@@ -55,18 +54,16 @@ async def process_translations(
     """
     db = SessionLocal()
     try:
-        for language in languages:
-            translated_text = await translate_text(text, language)
+        translated_text = await translate_text(text, language)
 
-            result = TranslationResult(
-                request_id=request_id,
-                language=language,
-                translated_text=translated_text,
-            )
-            db.add(result)
-            db.commit()
+        result = TranslationResult(
+            request_id=request_id,
+            language=language,
+            translated_text=translated_text,
+        )
+        db.add(result)
+        db.commit()
 
-        # Mark parent request as completed
         request = (
             db.query(TranslationRequest)
             .filter(TranslationRequest.id == request_id)
@@ -79,11 +76,6 @@ async def process_translations(
     except Exception as exc:
         db.rollback()
         logger.error("Translation processing failed: %s", exc, exc_info=True)
-        # Flip the request to "failed" so the frontend stops polling
-        # instead of getting stuck at 75% forever. The response has
-        # already been sent by the time we get here, so re-raising would
-        # only crash the background task runner (and surprise the caller
-        # in tests); logging is the right signal in production.
         try:
             request = (
                 db.query(TranslationRequest)

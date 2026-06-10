@@ -11,12 +11,12 @@ class TranslationRequestSchema(BaseModel):
     """Schema for the translation request coming from the frontend."""
 
     text: str = Field(..., description="The text to be translated.")
-    languages: str = Field(..., description="Comma-separated list of target languages.")
+    language: str = Field(..., description="Target language.")
 
     class Config:
         json_schema_extra = {
             "example": {
                 "text": "Hello, world!",
-                "languages": "french, german, russian, spanish",
+                "language": "french",
             }
         }

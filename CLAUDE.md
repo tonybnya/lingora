@@ -35,12 +35,12 @@ npx @tailwindcss/cli -i app/input.css -o app/static/css/style.css
 Translation is fire-and-forget via FastAPI `BackgroundTasks`, with the frontend polling for completion:
 
 1. `POST /translate` (`app/main.py`) persists a `TranslationRequest` row with status `"in progress"`, then enqueues `process_translations` and returns immediately with the row id.
-2. `process_translations` (`app/utils.py`) runs after the response is sent. It **opens its own `SessionLocal`** — it cannot use the request-scoped `Depends(get_db)` session because that's already closed by the time a background task runs. It translates into each language, persists a `TranslationResult` per language, then flips the request to `"completed"`. On any exception it rolls back and sets status `"failed"` (never re-raises — re-raising would crash the background runner and the response is already gone).
-3. Frontend (`app/static/js/translator.js`) polls `GET /translate/{id}` until status is `"completed"` or `"failed"`. The status field is the contract between background work and the UI — leaving a request stuck at `"in progress"` hangs the client forever.
+2. `process_translations` (`app/utils.py`) runs after the response is sent. It **opens its own `SessionLocal`** — it cannot use the request-scoped `Depends(get_db)` session because that's already closed by the time a background task runs. It translates the text into the target language, persists a `TranslationResult`, then flips the request to `"completed"`. On any exception it rolls back and sets status `"failed"` (never re-raises).
+3. Frontend (`app/static/js/translator.js`) polls `GET /translate/{id}` until status is `"completed"` or `"failed"`.
 
 ### Gemini provider (`app/utils.py`)
 
-Translation is Gemini-only. The client is lazily constructed at first call so tests can set `GEMINI_API_KEY` before importing.
+Translation is Gemini-only and single-language. The client is lazily constructed at first call so tests can set `GEMINI_API_KEY` before importing.
 
 ### Data layer (`app/database.py`, `app/models.py`)
 

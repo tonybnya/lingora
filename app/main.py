@@ -121,20 +121,17 @@ async def translate(
 
     db_request = models.TranslationRequest(
         text=request_data.text,
-        languages=request_data.languages,
+        language=request_data.language,
     )
     db.add(db_request)
     db.commit()
     db.refresh(db_request)
 
-    # Enqueue the heavy LLM work. process_translations owns its own DB
-    # session because BackgroundTasks run after the request response
-    # is sent (and the request-scoped session has already been closed).
     background_tasks.add_task(
         process_translations,
         db_request.id,
         request_data.text,
-        [lang.strip() for lang in request_data.languages.split(",") if lang.strip()],
+        request_data.language,
     )
 
     return {

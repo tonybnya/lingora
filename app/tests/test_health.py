@@ -14,7 +14,7 @@ def test_health_returns_expected_shape(client, db_session):
     assert body["service"] == "Lingora API"
     assert body["status"] in {"ok", "degraded"}
     assert body["db"] in {"ok", "error"}
-    assert body["provider"] in {"ok", "unconfigured", "unknown", "error"}
+    assert body["provider"] in {"ok", "unconfigured", "error"}
     assert "timestamp" in body
 
 

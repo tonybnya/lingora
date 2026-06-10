@@ -2,10 +2,6 @@
 
 See `CLAUDE.md` for the primary architecture, commands, testing, and frontend breakdown. This file adds what CLAUDE.md does not cover.
 
-## Dead code to avoid
-
-`models.IndividualTranslations` (`app/models.py:59`) is unused. No route or function writes to it. `process_translations` writes to `TranslationResult`. Do not reference `IndividualTranslations` in new code; consider removing it.
-
 ## Files to read before making changes
 
 - `DESIGN.md` — Stitch-generated design tokens (colors, typography, layout). Read before modifying frontend pages to stay on-brand.
