@@ -5,6 +5,7 @@ Author      : @tonybnya
 """
 
 import logging
+import os
 from datetime import datetime
 from pathlib import Path
 from dotenv import load_dotenv
@@ -14,15 +15,16 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
+from sqlalchemy import text
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 load_dotenv()
 
 # Local imports (must come after load_dotenv so engine construction picks up env)
-from database import engine, get_db  # noqa: E402
+from database import engine, get_db, SessionLocal  # noqa: E402
 from schemas import TranslationRequestSchema  # noqa: E402
 import models  # noqa: E402
-from utils import process_translations  # noqa: E402
+from utils import process_translations, _get_provider  # noqa: E402
 
 # Create database tables
 models.Base.metadata.create_all(bind=engine)
@@ -87,10 +89,35 @@ async def translator(request: Request):
 # API Endpoints
 @app.get("/health", status_code=200)
 def health() -> dict[str, str]:
-    """API health check endpoint."""
+    """API health check endpoint. Pings DB and checks provider config."""
+    db_status = "ok"
+    try:
+        with SessionLocal() as session:
+            session.execute(text("SELECT 1"))
+    except Exception:
+        db_status = "error"
+
+    provider_status = "ok"
+    try:
+        provider = _get_provider()
+        if provider == "openai":
+            if not os.getenv("OPENAI_API_KEY"):
+                provider_status = "unconfigured"
+        elif provider == "gemini":
+            if not os.getenv("GEMINI_API_KEY"):
+                provider_status = "unconfigured"
+        else:
+            provider_status = f"unknown:{provider}"
+    except Exception:
+        provider_status = "error"
+
+    status = "ok" if db_status == "ok" and provider_status == "ok" else "degraded"
+
     return {
-        "status": "ok",
         "service": "Lingora API",
+        "status": status,
+        "db": db_status,
+        "provider": provider_status,
         "timestamp": datetime.now().isoformat(),
     }
 
