@@ -83,6 +83,3 @@ def test_translate_marks_failed_when_provider_raises(client, db_session):
     db_request = db_session.query(TranslationRequest).filter_by(id=request_id).first()
     assert db_request is not None
     assert db_request.status == "failed"
-
-
-

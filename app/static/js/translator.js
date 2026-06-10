@@ -11,7 +11,7 @@
     // -----------------------------------------------------------------------
     //  Custom notification system (DESIGN.md styled)
     // -----------------------------------------------------------------------
-    function notify({ type = 'info', title = '', message = '', duration = 4500 }) {
+    window.notify = function notify({ type = 'info', title = '', message = '', duration = 4500 }) {
         const container = document.getElementById('notify-container');
         if (!container) return;
 
@@ -317,7 +317,7 @@
         });
     };
 
-    function escapeHtml(s) {
+    window.escapeHtml = function escapeHtml(s) {
         if (s == null) return '';
         return String(s)
             .replace(/&/g, '&amp;')
@@ -325,7 +325,7 @@
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#39;');
-    }
+    };
 
     // -----------------------------------------------------------------------
     //  Check status / content (kept from previous implementation)
