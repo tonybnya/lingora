@@ -1,3 +1,3 @@
-# lingora
+# Lingora
 
-Real-Time Translation Service with FastAPI and Gemini.
+A text-only language translation web app powered by Gemini AI.
