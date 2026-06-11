@@ -147,76 +147,80 @@
             return;
         }
 
-        // WebSocket
-        var protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-        ws = new WebSocket(protocol + '//' + location.host + '/ws/audio-translate');
+        teardownMic();
 
-        ws.onopen = function () {
-            // Send config
-            ws.send(JSON.stringify({ language: language }));
+        // Create AudioContext during user gesture so it stays in 'running' state.
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-            // Start microphone
-            navigator.mediaDevices.getUserMedia({ audio: true })
-                .then(function (stream) {
-                    mediaStream = stream;
+        // Start microphone during user gesture too.
+        navigator.mediaDevices.getUserMedia({ audio: true })
+            .then(function (stream) {
+                mediaStream = stream;
 
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                    var sampleRate = audioCtx.sampleRate;
-                    micSource = audioCtx.createMediaStreamSource(stream);
+                // Ensure context is running (some browsers need explicit resume).
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
 
-                    var bufferSize = 4096;
-                    processor = audioCtx.createScriptProcessor(bufferSize, 1, 1);
+                var sampleRate = audioCtx.sampleRate;
+                micSource = audioCtx.createMediaStreamSource(stream);
 
-                    processor.onaudioprocess = function (e) {
-                        if (!ws || ws.readyState !== WebSocket.OPEN) return;
-                        var input = e.inputBuffer.getChannelData(0);
-                        var resampled = resampleTo16kHz(input, sampleRate);
-                        var pcm = float32ToInt16(resampled);
-                        ws.send(pcm.buffer);
-                    };
+                processor = audioCtx.createScriptProcessor(4096, 1, 1);
 
-                    micSource.connect(processor);
-                    processor.connect(audioCtx.destination);
+                processor.onaudioprocess = function (e) {
+                    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+                    var input = e.inputBuffer.getChannelData(0);
+                    var resampled = resampleTo16kHz(input, sampleRate);
+                    var pcm = float32ToInt16(resampled);
+                    ws.send(pcm.buffer);
+                };
 
+                micSource.connect(processor);
+
+                // Open WebSocket once mic is ready.
+                var protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+                ws = new WebSocket(protocol + '//' + location.host + '/ws/audio-translate');
+
+                ws.onopen = function () {
+                    ws.send(JSON.stringify({ language: language }));
                     recording = true;
                     setStatus(true);
                     if (btn) {
                         btn.textContent = 'Stop Recording';
                         btn.classList.add('recording');
                     }
-                })
-                .catch(function (err) {
-                    notify({ type: 'error', title: 'Mic access denied', message: err.message });
-                    if (ws) { ws.close(); ws = null; }
-                    setStatus(false);
-                });
-        };
+                };
 
-        ws.onmessage = function (e) {
-            var data;
-            try { data = JSON.parse(e.data); } catch (_) { return; }
+                ws.onmessage = function (e) {
+                    var data;
+                    try { data = JSON.parse(e.data); } catch (_) { return; }
 
-            if (data.type === 'translation') {
-                appendResult(data.source, data.translation);
-            } else if (data.type === 'error') {
-                notify({ type: 'error', title: 'Translation error', message: data.message });
-            }
-        };
+                    if (data.type === 'translation') {
+                        appendResult(data.source, data.translation);
+                    } else if (data.type === 'error') {
+                        notify({ type: 'error', title: 'Translation error', message: data.message });
+                    }
+                };
 
-        ws.onerror = function () {
-            notify({ type: 'error', title: 'WebSocket error', message: 'Connection lost.' });
-            stopRecording();
-        };
+                ws.onerror = function () {
+                    notify({ type: 'error', title: 'WebSocket error', message: 'Connection lost.' });
+                    stopRecording();
+                };
 
-        ws.onclose = function () {
-            if (recording) {
-                // Unexpected close – try to reconnect
-                notify({ type: 'info', title: 'Disconnected', message: 'Reconnecting in ' + (RECONNECT_DELAY_MS / 1000) + 's…' });
+                ws.onclose = function () {
+                    if (recording) {
+                        notify({ type: 'info', title: 'Disconnected', message: 'Reconnecting in ' + (RECONNECT_DELAY_MS / 1000) + 's…' });
+                        teardownMic();
+                        setStatus(false);
+                        reconnectTimer = setTimeout(startRecording, RECONNECT_DELAY_MS);
+                    }
+                };
+            })
+            .catch(function (err) {
+                notify({ type: 'error', title: 'Mic access denied', message: err.message });
                 teardownMic();
                 setStatus(false);
-                reconnectTimer = setTimeout(startRecording, RECONNECT_DELAY_MS);
-            }
-        };
+            });
     }
 
     // -----------------------------------------------------------------------

@@ -1,6 +1,6 @@
 """
 Script Name : gemini_live.py
-Description : Gemini Live API session management for real-time audio transcription.
+Description : Gemini Live API session management for real-time audio translation.
 Author      : @tonybnya
 """
 
@@ -17,17 +17,19 @@ logger = logging.getLogger(__name__)
 
 
 class GeminiLive:
-    """Manages a Gemini Live session for audio-in / text-out transcription.
+    """Manages a Gemini Live session for real-time audio-to-text translation.
 
-    Uses ``input_audio_transcription`` to convert streaming PCM audio into
-    text events.  Designed for a single WebSocket-backed session per instance.
+    Uses ``system_instruction`` to tell the model to translate speech into the
+    target language, ``input_audio_transcription`` for the source text, and
+    ``output_audio_transcription`` for the translated text — no separate
+    ``generateContent`` call needed.
     """
 
     def __init__(
         self,
         api_key: str,
         *,
-        model: str = "gemini-2.0-flash-live-preview",
+        model: str = "gemini-3.1-flash-live-preview",
     ) -> None:
         self._client = genai.Client(api_key=api_key)
         self._model = model
@@ -38,29 +40,49 @@ class GeminiLive:
         self,
         input_queue: asyncio.Queue[bytes | None],
         output_queue: asyncio.Queue[dict[str, Any]],
+        *,
+        target_language: str = "English",
     ) -> None:
         """Open a live session and start send/receive loops.
+
+        The model is instructed via ``system_instruction`` to translate the
+        user's speech to *target_language*.  Events are pushed to
+        *output_queue*:
+
+            ``{"type": "translation", "source": "...", "translation": "..."}``
+            ``{"type": "error", "text": "..."}``
 
         Args:
             input_queue: Raw PCM 16 kHz 16-bit mono audio chunks.
                          Push ``None`` to signal end-of-stream.
-            output_queue: Events are pushed here::
-
-                              {"type": "transcription", "text": "..."}
-                              {"type": "turn_complete"}
-                              {"type": "error", "text": "..."}
+            output_queue: Translation and error events.
+            target_language: The language to translate speech into.
         """
         config = types.LiveConnectConfig(
             response_modalities=[types.Modality.AUDIO],
             input_audio_transcription=types.AudioTranscriptionConfig(),
+            output_audio_transcription=types.AudioTranscriptionConfig(),
+            system_instruction=types.Content(
+                parts=[
+                    types.Part(
+                        text=(
+                            f"Translate everything the user says to {target_language}. "
+                            "Respond ONLY with the translated version in audio. "
+                            "Do not add any commentary or extra text."
+                        ),
+                    ),
+                ],
+            ),
         )
 
         async def _run() -> None:
             try:
+                logger.info("Connecting to Gemini Live (model=%s)…", self._model)
                 async with self._client.aio.live.connect(
                     model=self._model,
                     config=config,
                 ) as session:
+                    logger.info("Gemini Live session opened")
                     self._session = session
 
                     async def _send_audio() -> None:
@@ -81,26 +103,35 @@ class GeminiLive:
                             logger.exception("GeminiLive send loop error")
 
                     async def _receive_events() -> None:
+                        last_input = ""
                         try:
                             while True:
                                 async for response in session.receive():
                                     content = response.server_content
                                     if content is None:
                                         continue
+
                                     if (
                                         content.input_transcription
                                         and content.input_transcription.text
                                     ):
+                                        last_input = content.input_transcription.text
+
+                                    if (
+                                        content.output_transcription
+                                        and content.output_transcription.text
+                                    ):
                                         await output_queue.put(
                                             {
-                                                "type": "transcription",
-                                                "text": content.input_transcription.text,
+                                                "type": "translation",
+                                                "source": last_input,
+                                                "translation": content.output_transcription.text,
                                             },
                                         )
+                                        last_input = ""
+
                                     if content.turn_complete:
-                                        await output_queue.put(
-                                            {"type": "turn_complete"},
-                                        )
+                                        last_input = ""
                         except asyncio.CancelledError:
                             pass
                         except Exception:

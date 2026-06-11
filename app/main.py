@@ -33,7 +33,7 @@ load_dotenv()
 from database import engine, get_db, SessionLocal  # noqa: E402
 from schemas import TranslationRequestSchema  # noqa: E402
 import models  # noqa: E402
-from utils import process_translations, translate_text  # noqa: E402
+from utils import process_translations  # noqa: E402
 from gemini_live import GeminiLive  # noqa: E402
 
 # Create database tables
@@ -213,33 +213,17 @@ async def audio_translate(websocket: WebSocket) -> None:
             await input_queue.put(None)
 
     async def _send_translations() -> None:
-        """Pull transcription events, translate them, send back as JSON."""
+        """Pull events from Gemini Live and forward them to the client."""
         try:
             while True:
                 event = await output_queue.get()
                 if event is None:
                     break
 
-                if event["type"] == "transcription":
-                    source_text = event["text"]
-                    try:
-                        translated = await translate_text(source_text, target_language)
-                    except Exception as exc:
-                        logger.error("Translate failed: %s", exc)
-                        translated = f"[Translation error: {exc}]"
-
-                    await websocket.send_json(
-                        {
-                            "type": "translation",
-                            "source": source_text,
-                            "translation": translated,
-                        },
-                    )
-
-                elif event["type"] == "error":
-                    await websocket.send_json(
-                        {"type": "error", "message": event["text"]},
-                    )
+                try:
+                    await websocket.send_json(event)
+                except (WebSocketDisconnect, RuntimeError):
+                    break
 
         except WebSocketDisconnect:
             pass
@@ -247,7 +231,7 @@ async def audio_translate(websocket: WebSocket) -> None:
             logger.exception("send_translations error")
 
     try:
-        await live.start(input_queue, output_queue)
+        await live.start(input_queue, output_queue, target_language=target_language)
         await asyncio.gather(
             asyncio.create_task(_receive_audio()),
             asyncio.create_task(_send_translations()),
