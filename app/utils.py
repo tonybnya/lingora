@@ -26,9 +26,7 @@ def _get_gemini_client() -> genai.Client:
     return _gemini_client
 
 
-async def translate_text(
-    text: str, language: str, model: str = "gemini-2.5-flash"
-) -> str:
+async def translate_text(text: str, language: str) -> str:
     client = _get_gemini_client()
     prompt = (
         f"You are an expert translator. "
@@ -36,7 +34,7 @@ async def translate_text(
         f"Return ONLY the translated text, without any additional comments, explanation, or quotes:\n\n{text}"
     )
     response = await client.aio.models.generate_content(
-        model=model,
+        model="gemini-2.5-flash",
         contents=prompt,
     )
     return (response.text or "").strip()

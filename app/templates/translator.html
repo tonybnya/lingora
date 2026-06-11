@@ -61,29 +61,6 @@
     <!-- Results Section (hidden by default until a translation completes) -->
     <div id="results" class="glass-panel results-area"></div>
 
-    <!-- Audio Translation Interface -->
-    <div class="glass-panel">
-      <span class="section-label">Voice Translation</span>
-      <h2 class="section-title"><span class="accent">Speak</span> &amp; Translate</h2>
-
-      <div class="form-group">
-        <label for="audio-language" class="form-label">Target Language</label>
-        <input type="text" id="audio-language" class="form-input" placeholder="e.g. French" required>
-      </div>
-
-      <div class="audio-controls">
-        <button type="button" id="audio-record-btn" class="btn btn-record" onclick="toggleAudioRecording()">
-          Start Recording
-        </button>
-        <div class="audio-status">
-          <span id="audio-status-dot" class="audio-status-dot"></span>
-          <span id="audio-status-text" class="audio-status-text">Disconnected</span>
-        </div>
-      </div>
-
-      <div id="audio-transcriptions" class="audio-transcriptions"></div>
-    </div>
-
     <!-- Check Translation Status -->
     <div class="glass-panel">
       <span class="section-label">Check Status</span>
@@ -128,6 +105,5 @@
 
   <script src="https://cdn.jsdelivr.net/npm/axios@1.17.0/dist/axios.min.js"></script>
   <script src="{{ url_for('static', path='/js/translator.js') }}"></script>
-  <script src="{{ url_for('static', path='/js/audio_translator.js') }}"></script>
 </body>
 </html>

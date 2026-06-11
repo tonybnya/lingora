@@ -11,7 +11,7 @@
     // -----------------------------------------------------------------------
     //  Custom notification system (DESIGN.md styled)
     // -----------------------------------------------------------------------
-    window.notify = function notify({ type = 'info', title = '', message = '', duration = 4500 }) {
+    function notify({ type = 'info', title = '', message = '', duration = 4500 }) {
         const container = document.getElementById('notify-container');
         if (!container) return;
 
@@ -317,7 +317,7 @@
         });
     };
 
-    window.escapeHtml = function escapeHtml(s) {
+    function escapeHtml(s) {
         if (s == null) return '';
         return String(s)
             .replace(/&/g, '&amp;')

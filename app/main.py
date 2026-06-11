@@ -4,21 +4,12 @@ Description : Main FastAPI application setup and route definitions.
 Author      : @tonybnya
 """
 
-import asyncio
 import logging
 import os
 from datetime import datetime
 from pathlib import Path
 from dotenv import load_dotenv
-from fastapi import (
-    FastAPI,
-    BackgroundTasks,
-    HTTPException,
-    Depends,
-    Request,
-    WebSocket,
-    WebSocketDisconnect,
-)
+from fastapi import FastAPI, BackgroundTasks, HTTPException, Depends, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -34,14 +25,12 @@ from database import engine, get_db, SessionLocal  # noqa: E402
 from schemas import TranslationRequestSchema  # noqa: E402
 import models  # noqa: E402
 from utils import process_translations  # noqa: E402
-from gemini_live import GeminiLive  # noqa: E402
 
 # Create database tables
 models.Base.metadata.create_all(bind=engine)
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 # Define the FastAPI app
 app = FastAPI()
@@ -179,62 +168,3 @@ async def get_translation_status(request_id: int, db: Session = Depends(get_db))
             for t in translations
         ],
     }
-
-
-# WebSocket — Real-time Audio Translation
-@app.websocket("/ws/audio-translate")
-async def audio_translate(websocket: WebSocket) -> None:
-    """Accept streaming PCM audio, transcribe via Gemini Live, translate, return text."""
-    await websocket.accept()
-
-    target_language = "english"
-    try:
-        config_msg = await websocket.receive_json()
-        target_language = config_msg.get("language", "english")
-    except Exception:
-        await websocket.send_json({"type": "error", "message": "Invalid config"})
-        await websocket.close()
-        return
-
-    input_queue: asyncio.Queue[bytes | None] = asyncio.Queue()
-    output_queue: asyncio.Queue[dict] = asyncio.Queue()
-
-    live = GeminiLive(api_key=os.getenv("GEMINI_API_KEY", ""))
-
-    async def _receive_audio() -> None:
-        """Read raw PCM audio chunks from the WebSocket binary stream."""
-        try:
-            while True:
-                data = await websocket.receive_bytes()
-                await input_queue.put(data)
-        except WebSocketDisconnect:
-            pass
-        finally:
-            await input_queue.put(None)
-
-    async def _send_translations() -> None:
-        """Pull events from Gemini Live and forward them to the client."""
-        try:
-            while True:
-                event = await output_queue.get()
-                if event is None:
-                    break
-
-                try:
-                    await websocket.send_json(event)
-                except (WebSocketDisconnect, RuntimeError):
-                    break
-
-        except WebSocketDisconnect:
-            pass
-        except Exception:
-            logger.exception("send_translations error")
-
-    try:
-        await live.start(input_queue, output_queue, target_language=target_language)
-        await asyncio.gather(
-            asyncio.create_task(_receive_audio()),
-            asyncio.create_task(_send_translations()),
-        )
-    finally:
-        live.stop()
